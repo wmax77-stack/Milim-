@@ -142,6 +142,22 @@
   .example-text{ direction:ltr; text-align:start; margin:0; font-size:14.5px; line-height:1.55; color:var(--ink); }
   .example-box.loading .example-text{ direction:rtl; font-size:12.5px; color:var(--ink-faint); }
 
+  /* ---------- Voice add ---------- */
+  .voice-add-word{ text-align:center; font-size:32px; font-weight:800; letter-spacing:-0.03em; min-height:40px; }
+  .voice-add-sub{ text-align:center; font-size:13px; color:var(--ink-soft); margin-top:8px; line-height:1.55; }
+
+  /* ---------- Paste text ---------- */
+  .paste-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin:18px 0 8px; }
+  .paste-head .field-label{ margin:0; }
+  .paste-all{ width:auto; margin:0; padding:4px 6px; font-size:12.5px; }
+  .paste-chips{ display:flex; flex-wrap:wrap; gap:7px; max-height:230px; overflow-y:auto; margin-bottom:14px;
+    padding:2px; -webkit-overflow-scrolling:touch; }
+  .paste-chip{ border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:14px;
+    font-weight:600; padding:7px 13px; border-radius:var(--r-full); cursor:pointer; font-family:inherit;
+    display:inline-flex; align-items:center; gap:6px; transition:all .15s ease; }
+  .paste-chip.on{ background:var(--brand); border-color:var(--brand); color:#fff; }
+  .paste-count{ font-family:var(--mono); font-size:10px; opacity:.65; }
+
   /* ---------- Menu sections ---------- */
   .menu-section-label{ font-size:11px; font-weight:700; color:var(--ink-faint); letter-spacing:.04em;
     margin:16px 4px 8px; }
@@ -619,6 +635,31 @@
 </div>
 
 <!-- Menu sheet -->
+<div class="overlay" id="voiceAddOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>הוספה בדיבור</h2>
+      <button class="close-x" id="voiceAddClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="voiceAddBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="pasteOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>הדבקת טקסט</h2>
+      <button class="close-x" id="pasteClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <textarea id="pasteText" placeholder="הדביקו כאן פסקה, כתבה או מילות שיר באנגלית"></textarea>
+    <div class="bulk-example">האפליקציה תסנן מילים נפוצות ומילים שכבר יש לך, ותציע רק את החדשות.</div>
+    <button type="button" class="add-btn" id="pasteScan">נתח את הטקסט</button>
+    <div id="pasteResults"></div>
+  </div>
+</div>
+
 <div class="overlay" id="typeOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -760,6 +801,22 @@
       </button>
     </div>
 
+    <div class="menu-section-label">הוספת מילים</div>
+    <div class="menu-list">
+      <button type="button" id="menuVoiceAdd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>
+        <span class="menu-text">הוספה בדיבור<em>אמירת מילה במקום הקלדה</em></span>
+      </button>
+      <button type="button" id="menuPaste">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V2.8h6V4M9 10h6M9 14h4"/></svg>
+        <span class="menu-text">הדבקת טקסט<em>שליפת המילים שעדיין לא ברשימה</em></span>
+      </button>
+      <button type="button" id="menuBulk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="menu-text">הוספה בכמות<em>רשימה של מילה = פירוש</em></span>
+      </button>
+    </div>
+
     <div class="menu-section-label">נתונים</div>
     <div class="menu-list">
       <button type="button" id="menuExport">
@@ -771,10 +828,6 @@
         ייבוא מקובץ גיבוי
       </label>
       <input type="file" id="importInput" accept="application/json">
-      <button type="button" id="menuBulk">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        הוספת מילים בכמות
-      </button>
     </div>
     <div class="hint" id="menuHint"></div>
   </div>
@@ -2282,6 +2335,178 @@
   });
   $("statsClose").addEventListener("click", function(){ closeOverlay("statsOverlay"); });
   $("wotdClose").addEventListener("click", function(){ closeOverlay("wotdOverlay"); });
+
+  // ---------- Adding by voice ----------
+  var voiceAddBody = $("voiceAddBody"), voiceRec = null;
+
+  function renderVoiceAdd(state){
+    state = state || {};
+    if(!SpeechRec){
+      voiceAddBody.innerHTML = '<div class="quiz-empty">הדפדפן הזה לא תומך בזיהוי דיבור.<br>בספארי באייפון זה עובד.</div>';
+      return;
+    }
+    voiceAddBody.innerHTML =
+      '<div class="voice-add-word" dir="ltr" id="voiceHeard">' + escapeHtml(state.word || "—") + '</div>' +
+      '<div class="voice-add-sub" id="voiceSub">' + escapeHtml(state.sub || "לחצו על המיקרופון ואמרו מילה באנגלית") + '</div>' +
+      '<div class="pron-actions"><button type="button" class="pron-mic" id="voiceMic" aria-label="דבר/י">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>' +
+      '</button></div>' +
+      (state.word ? '<button type="button" class="add-btn" id="voiceConfirm">הוספת "' + escapeHtml(state.word) + '"</button>' : '');
+
+    var mic = $("voiceMic"), heard = $("voiceHeard"), sub = $("voiceSub");
+
+    if(state.word){
+      $("voiceConfirm").addEventListener("click", async function(){
+        var btn = this;
+        btn.disabled = true; btn.textContent = "מוסיף...";
+        var res = await addWordWithTranslation(state.word);
+        if(res === "exists"){ renderVoiceAdd({ word:state.word, sub:"המילה כבר ברשימה שלך" }); return; }
+        showToast('נוספה: ' + state.word);
+        renderVoiceAdd({ sub:"אפשר להמשיך למילה הבאה" });
+      });
+    }
+
+    mic.addEventListener("click", function(){
+      if(voiceRec){ try{ voiceRec.stop(); }catch(e){} voiceRec = null; return; }
+      var rec = new SpeechRec();
+      voiceRec = rec;
+      rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 3;
+      mic.classList.add("listening");
+      heard.textContent = "—";
+      sub.textContent = "מקשיב...";
+      rec.onresult = function(ev){
+        var text = (ev.results[0][0].transcript || "").trim();
+        var word = sanitizeEnglish(text);
+        if(!word){ renderVoiceAdd({ sub:"לא הצלחתי לזהות מילה באנגלית. נסו שוב." }); return; }
+        renderVoiceAdd({ word:word, sub:"זו המילה הנכונה?" });
+      };
+      rec.onerror = function(ev){
+        mic.classList.remove("listening");
+        sub.textContent = (ev && ev.error === "not-allowed")
+          ? "אין הרשאה למיקרופון. יש לאשר בהגדרות הדפדפן."
+          : "לא הצלחתי לשמוע. נסו שוב.";
+      };
+      rec.onend = function(){ mic.classList.remove("listening"); voiceRec = null; };
+      try{ rec.start(); }
+      catch(e){ mic.classList.remove("listening"); sub.textContent = "לא ניתן להפעיל את המיקרופון."; }
+    });
+  }
+
+  // Adds a word and fills the Hebrew meaning from the translation sources.
+  async function addWordWithTranslation(en){
+    var res = await gatherTranslations(en);
+    var he = (res && res.best) ? res.best.text : "";
+    return await addWord(en, he, "");
+  }
+
+  // ---------- Adding from pasted text ----------
+  // The 200 or so most common English words carry no learning value, so they're filtered out.
+  var STOPWORDS = ("the be to of and a in that have i it for not on with he as you do at this but his by from " +
+    "they we say her she or an will my one all would there their what so up out if about who get which go me " +
+    "when make can like time no just him know take people into year your good some could them see other than " +
+    "then now look only come its over think also back after use two how our work first well way even new want " +
+    "because any these give day most us is are was were been has had did does said very much more many such " +
+    "own same too own here there where why while during before between under above own off again both each few " +
+    "own more most other some own than too very can will just don should now been being am").split(" ");
+
+  var pasteResults = $("pasteResults"), pasteSelection = [];
+
+  function extractWords(text){
+    var found = {};
+    var matches = String(text || "").toLowerCase().match(/[a-z][a-z'-]{2,}/g) || [];
+    matches.forEach(function(raw){
+      var w = raw.replace(/^['-]+|['-]+$/g, "");
+      if(w.length < 3) return;
+      // "don't" / "wasn't" are just common words in disguise — judge them by their base form.
+      var base = w.replace(/n't$/, "").replace(/'(s|re|ve|ll|d|m)$/, "");
+      if(STOPWORDS.indexOf(w) !== -1 || STOPWORDS.indexOf(base) !== -1) return;
+      found[w] = (found[w] || 0) + 1;
+    });
+    var existing = {};
+    words.forEach(function(w){ existing[w.en.toLowerCase()] = true; });
+    return Object.keys(found)
+      .filter(function(w){ return !existing[w]; })
+      .map(function(w){ return { word:w, count:found[w] }; })
+      .sort(function(a,b){ return b.count - a.count || a.word.localeCompare(b.word); })
+      .slice(0, 60);
+  }
+
+  function renderPasteResults(list){
+    if(!list.length){
+      pasteResults.innerHTML = '<div class="hint" style="text-align:center;margin-top:14px">לא נמצאו מילים חדשות בטקסט הזה.</div>';
+      return;
+    }
+    pasteSelection = [];
+    pasteResults.innerHTML =
+      '<div class="paste-head"><span class="field-label">' + list.length + ' מילים חדשות · בחרו מה להוסיף</span>' +
+        '<button type="button" class="text-btn paste-all" id="pasteAll">בחירת הכל</button></div>' +
+      '<div class="paste-chips" id="pasteChips">' +
+        list.map(function(item, i){
+          return '<button type="button" class="paste-chip" data-i="' + i + '" dir="ltr">' + escapeHtml(item.word) +
+            (item.count > 1 ? '<span class="paste-count">' + item.count + '</span>' : '') + '</button>';
+        }).join("") +
+      '</div>' +
+      '<button type="button" class="add-btn" id="pasteAdd" disabled>בחרו מילים להוספה</button>' +
+      '<div class="hint" id="pasteProgress"></div>';
+
+    var addBtn = $("pasteAdd");
+    function refreshBtn(){
+      addBtn.disabled = !pasteSelection.length;
+      addBtn.textContent = pasteSelection.length
+        ? "הוספת " + pasteSelection.length + " מילים עם תרגום"
+        : "בחרו מילים להוספה";
+    }
+
+    $("pasteChips").querySelectorAll(".paste-chip").forEach(function(chip){
+      chip.addEventListener("click", function(){
+        var w = list[parseInt(chip.getAttribute("data-i"),10)].word;
+        var at = pasteSelection.indexOf(w);
+        if(at === -1){ pasteSelection.push(w); chip.classList.add("on"); }
+        else { pasteSelection.splice(at,1); chip.classList.remove("on"); }
+        refreshBtn();
+      });
+    });
+
+    $("pasteAll").addEventListener("click", function(){
+      var selectAll = pasteSelection.length !== list.length;
+      pasteSelection = selectAll ? list.map(function(x){ return x.word; }) : [];
+      $("pasteChips").querySelectorAll(".paste-chip").forEach(function(c){ c.classList.toggle("on", selectAll); });
+      $("pasteAll").textContent = selectAll ? "ניקוי הבחירה" : "בחירת הכל";
+      refreshBtn();
+    });
+
+    addBtn.addEventListener("click", async function(){
+      var chosen = pasteSelection.slice(0, 40);   // a sane ceiling: each word costs several network lookups
+      var progress = $("pasteProgress");
+      addBtn.disabled = true;
+      var added = 0;
+      for(var i = 0; i < chosen.length; i++){
+        progress.textContent = "מתרגם " + (i+1) + " מתוך " + chosen.length + "...";
+        var r = await addWordWithTranslation(chosen[i]);   // sequential, so the free APIs aren't hammered
+        if(r === true) added++;
+      }
+      progress.textContent = "";
+      showToast("נוספו " + added + " מילים");
+      closeOverlay("pasteOverlay");
+      $("pasteText").value = "";
+      pasteResults.innerHTML = "";
+    });
+  }
+
+  $("pasteScan").addEventListener("click", function(){
+    renderPasteResults(extractWords($("pasteText").value));
+  });
+  $("pasteClose").addEventListener("click", function(){ closeOverlay("pasteOverlay"); });
+  $("voiceAddClose").addEventListener("click", function(){
+    if(voiceRec){ try{ voiceRec.stop(); }catch(e){} voiceRec = null; }
+    closeOverlay("voiceAddOverlay");
+  });
+  $("menuVoiceAdd").addEventListener("click", function(){
+    closeOverlay("menuOverlay"); renderVoiceAdd(); openOverlay("voiceAddOverlay");
+  });
+  $("menuPaste").addEventListener("click", function(){
+    closeOverlay("menuOverlay"); pasteResults.innerHTML = ""; openOverlay("pasteOverlay");
+  });
 
   // ---------- Daily session ----------
   var DAILY_KEY = "myWordsApp.daily";
