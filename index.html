@@ -142,6 +142,47 @@
   .example-text{ direction:ltr; text-align:start; margin:0; font-size:14.5px; line-height:1.55; color:var(--ink); }
   .example-box.loading .example-text{ direction:rtl; font-size:12.5px; color:var(--ink-faint); }
 
+  /* ---------- Daily session ---------- */
+  .daily-banner{ display:none; align-items:center; gap:10px; background:var(--brand-tint);
+    border-radius:var(--r); padding:12px 14px; margin-bottom:12px; animation:rise .3s cubic-bezier(.22,1,.36,1); }
+  .daily-banner.show{ display:flex; }
+  .daily-banner-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .daily-banner-text strong{ font-size:14px; color:var(--brand-deep); }
+  .daily-banner-text span{ font-size:11.5px; color:var(--ink-soft); }
+  #dailyBannerStart{ border:none; background:var(--brand); color:#fff; font-size:13px; font-weight:700;
+    padding:8px 16px; border-radius:var(--r-full); cursor:pointer; flex-shrink:0; }
+  #dailyBannerStart:active{ transform:scale(0.95); }
+  .daily-banner-x{ border:none; background:transparent; color:var(--ink-faint); width:26px; height:26px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; padding:0; }
+  .daily-banner-x svg{ width:13px; height:13px; }
+
+  .switch-row{ display:flex; align-items:center; gap:12px; padding:13px 14px; background:var(--bg);
+    border-radius:var(--r-sm); margin-bottom:14px; cursor:pointer; }
+  .switch-row > span:first-child{ flex:1; display:flex; flex-direction:column; gap:3px; }
+  .switch-title{ font-size:14.5px; font-weight:600; }
+  .switch-sub{ font-size:11.5px; color:var(--ink-faint); line-height:1.45; }
+  .switch-row input{ position:absolute; opacity:0; width:0; height:0; }
+  .switch-track{ width:44px; height:26px; border-radius:var(--r-full); background:var(--line);
+    flex-shrink:0; position:relative; transition:background .2s ease; }
+  .switch-knob{ position:absolute; top:3px; inset-inline-start:3px; width:20px; height:20px; border-radius:50%;
+    background:#fff; box-shadow:var(--sh-1); transition:transform .2s cubic-bezier(.22,1,.36,1); }
+  .switch-row input:checked ~ .switch-track{ background:var(--brand); }
+  .switch-row input:checked ~ .switch-track .switch-knob{ transform:translateX(-18px); }
+  .switch-row input:focus-visible ~ .switch-track{ outline:2.5px solid var(--brand); outline-offset:2px; }
+
+  .setting-block{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .setting-block select, .setting-block input[type="time"]{ font-size:15px; padding:11px 13px;
+    border-radius:var(--r-sm); border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
+    font-family:inherit; outline:none; width:100%; }
+  .setting-block input[type="time"]{ direction:ltr; text-align:start; }
+  .setting-block select:focus, .setting-block input[type="time"]:focus{ border-color:var(--brand); }
+  .seg{ display:flex; gap:3px; background:var(--bg); border-radius:var(--r-sm); padding:3px; }
+  .seg button{ flex:1; border:none; background:transparent; color:var(--ink-soft); font-size:14px;
+    font-weight:700; padding:9px 4px; border-radius:10px; cursor:pointer; font-family:var(--mono); }
+  .seg button.active{ background:var(--surface); color:var(--brand); box-shadow:var(--sh-1); }
+  .text-btn{ width:100%; margin-top:10px; border:none; background:transparent; color:var(--brand);
+    font-size:13.5px; font-weight:700; padding:10px; cursor:pointer; font-family:inherit; }
+
   .status-check{ flex-shrink:0; width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line);
     background:var(--surface); color:var(--ink-faint); display:flex; align-items:center; justify-content:center;
     cursor:pointer; transition:all .18s ease; }
@@ -375,6 +416,16 @@
   </header>
 
   <main id="mainScroll">
+    <div class="daily-banner" id="dailyBanner">
+      <div class="daily-banner-text">
+        <strong>זמן לתרגול היומי</strong>
+        <span id="dailyBannerSub"></span>
+      </div>
+      <button type="button" id="dailyBannerStart">התחל</button>
+      <button type="button" class="daily-banner-x" id="dailyBannerSkip" aria-label="לא עכשיו">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
     <ul id="wordList"></ul>
     <div class="empty" id="emptyState">
       <span class="glyph">🔤</span>
@@ -484,7 +535,7 @@
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
-      <h2>תרגול</h2>
+      <h2 id="quizTitle">תרגול</h2>
       <button class="close-x" id="quizClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="quizBody"></div>
@@ -507,6 +558,59 @@
 </div>
 
 <!-- Menu sheet -->
+<div class="overlay" id="dailyOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>תרגול יומי</h2>
+      <button class="close-x" id="dailyClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+
+    <label class="switch-row" for="dailyEnabled">
+      <span>
+        <span class="switch-title">להזכיר לי כל יום</span>
+        <span class="switch-sub">תזכורת מופיעה כשפותחים את האפליקציה אחרי השעה שנקבעה</span>
+      </span>
+      <input type="checkbox" id="dailyEnabled">
+      <span class="switch-track"><span class="switch-knob"></span></span>
+    </label>
+
+    <div class="setting-block">
+      <span class="field-label">שעה</span>
+      <input type="time" id="dailyTime" value="20:00">
+    </div>
+
+    <div class="setting-block">
+      <span class="field-label">כמה מילים בכל תרגול</span>
+      <div class="seg" id="dailyCount">
+        <button type="button" data-count="3">3</button>
+        <button type="button" data-count="5" class="active">5</button>
+        <button type="button" data-count="10">10</button>
+      </div>
+    </div>
+
+    <div class="setting-block">
+      <span class="field-label">אילו מילים לבחור</span>
+      <select id="dailyPick">
+        <option value="learning">מילים שעדיין בתרגול</option>
+        <option value="oldest">המילים הוותיקות ביותר</option>
+        <option value="newest">המילים שנוספו לאחרונה</option>
+        <option value="random">אקראי מכל הרשימה</option>
+        <option value="category">מקטגוריה מסוימת</option>
+      </select>
+    </div>
+
+    <div class="setting-block" id="dailyCategoryBlock" style="display:none;">
+      <span class="field-label">קטגוריה</span>
+      <select id="dailyCategory"></select>
+    </div>
+
+    <button type="button" class="add-btn" id="dailySave">שמור</button>
+    <div class="hint" id="dailyStatus"></div>
+    <button type="button" class="text-btn" id="dailyStartNow">להתחיל תרגול עכשיו</button>
+  </div>
+</div>
+
 <div class="overlay" id="menuOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -515,6 +619,10 @@
       <button class="close-x" id="menuClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="menu-list">
+      <button type="button" id="menuDaily">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        תרגול יומי בשעה קבועה
+      </button>
       <button type="button" id="menuExport">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
         ייצוא הרשימה לקובץ גיבוי
@@ -858,6 +966,7 @@
     listEl.innerHTML = "";
     countBadge.textContent = words.length;
     renderProgress();
+    if(typeof refreshDailyBanner === "function") refreshDailyBanner();
     emptyEl.style.display = visible.length ? "none" : "block";
     emptyEl.querySelector ? null : null;
 
@@ -1473,9 +1582,10 @@
 
   // ---------- Quiz ----------
   var quizQueue = [], quizIndex = 0, quizRevealed = false;
-  var quizBtn = $("quizBtn"), quizBody = $("quizBody");
+  var quizBtn = $("quizBtn"), quizBody = $("quizBody"), quizTitle = $("quizTitle");
 
   function startQuiz(){
+    quizTitle.textContent = "תרגול";
     var pool = words.filter(function(w){ return w.status !== "known"; });
     if(!pool.length) pool = words.slice();
     quizQueue = pool.slice().sort(function(){ return Math.random() - 0.5; });
@@ -1643,6 +1753,166 @@
       scrollTicking = false;
     });
   }, { passive: true });
+
+  // ---------- Daily session ----------
+  var DAILY_KEY = "myWordsApp.daily";
+  var dailyCfg = (function(){
+    var def = { enabled:false, time:"20:00", count:5, pick:"learning", category:"", lastDone:"", lastSkipped:"" };
+    try{
+      var raw = JSON.parse(localStorage.getItem(DAILY_KEY) || "{}");
+      if(raw && typeof raw === "object"){
+        if(typeof raw.enabled === "boolean") def.enabled = raw.enabled;
+        if(/^\d{2}:\d{2}$/.test(raw.time)) def.time = raw.time;
+        if([3,5,10].indexOf(raw.count) !== -1) def.count = raw.count;
+        if(["learning","oldest","newest","random","category"].indexOf(raw.pick) !== -1) def.pick = raw.pick;
+        if(typeof raw.category === "string") def.category = raw.category.slice(0,30);
+        if(typeof raw.lastDone === "string") def.lastDone = raw.lastDone.slice(0,10);
+        if(typeof raw.lastSkipped === "string") def.lastSkipped = raw.lastSkipped.slice(0,10);
+      }
+    }catch(e){}
+    return def;
+  })();
+  function saveDaily(){ try{ localStorage.setItem(DAILY_KEY, JSON.stringify(dailyCfg)); }catch(e){} }
+
+  function todayKey(){
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function minutesNow(){ var d = new Date(); return d.getHours()*60 + d.getMinutes(); }
+  function minutesOf(hhmm){ var p = String(hhmm).split(":"); return (parseInt(p[0],10)||0)*60 + (parseInt(p[1],10)||0); }
+
+  // Which words this session covers. The picker is the whole point of the feature:
+  // "learning" is the useful default, the rest are there for people who study differently.
+  function pickDailyWords(){
+    var pool;
+    switch(dailyCfg.pick){
+      case "oldest":   pool = words.slice().sort(function(a,b){ return a.addedAt - b.addedAt; }); break;
+      case "newest":   pool = words.slice().sort(function(a,b){ return b.addedAt - a.addedAt; }); break;
+      case "category": pool = words.filter(function(w){ return w.category === dailyCfg.category; }); break;
+      case "random":   pool = words.slice().sort(function(){ return Math.random() - 0.5; }); break;
+      default:         pool = words.filter(function(w){ return w.status !== "known"; })
+                                   .sort(function(){ return Math.random() - 0.5; });
+    }
+    if(!pool.length) pool = words.slice().sort(function(){ return Math.random() - 0.5; });
+    return pool.slice(0, dailyCfg.count);
+  }
+
+  function dailyIsDue(){
+    if(!dailyCfg.enabled || !words.length) return false;
+    var today = todayKey();
+    if(dailyCfg.lastDone === today || dailyCfg.lastSkipped === today) return false;
+    return minutesNow() >= minutesOf(dailyCfg.time);
+  }
+
+  var dailyBanner = $("dailyBanner"), dailyBannerSub = $("dailyBannerSub");
+  function refreshDailyBanner(){
+    if(!dailyBanner) return;   // render() can run before this section is initialised
+    var due = dailyIsDue();
+    dailyBanner.classList.toggle("show", due);
+    if(due) dailyBannerSub.textContent = dailyCfg.count + " מילים · נקבע ל-" + dailyCfg.time;
+  }
+
+  function startDailySession(){
+    var picked = pickDailyWords();
+    if(!picked.length){ showToast("אין מילים מתאימות לתרגול"); return; }
+    dailyCfg.lastDone = todayKey(); saveDaily();
+    dailyBanner.classList.remove("show");
+    quizQueue = picked;
+    quizIndex = 0; quizRevealed = false;
+    quizTitle.textContent = "התרגול היומי";
+    renderQuiz();
+    openOverlay("quizOverlay");
+  }
+
+  $("dailyBannerStart").addEventListener("click", startDailySession);
+  $("dailyBannerSkip").addEventListener("click", function(){
+    dailyCfg.lastSkipped = todayKey(); saveDaily();
+    dailyBanner.classList.remove("show");
+  });
+
+  // Re-check on a timer and whenever the app comes back into view, so the banner appears
+  // at the right moment even if the app was left open.
+  setInterval(refreshDailyBanner, 60000);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) refreshDailyBanner(); });
+
+  // ---------- Daily settings sheet ----------
+  var dailyEnabled = $("dailyEnabled"), dailyTime = $("dailyTime"), dailyPick = $("dailyPick"),
+      dailyCategory = $("dailyCategory"), dailyCategoryBlock = $("dailyCategoryBlock"),
+      dailyCountSeg = $("dailyCount"), dailyStatus = $("dailyStatus");
+
+  function fillDailyCategories(){
+    var cats = [];
+    words.forEach(function(w){ if(w.category && cats.indexOf(w.category) === -1) cats.push(w.category); });
+    dailyCategory.innerHTML = "";
+    if(!cats.length){
+      var opt = document.createElement("option");
+      opt.value = ""; opt.textContent = "אין עדיין קטגוריות";
+      dailyCategory.appendChild(opt);
+      return;
+    }
+    cats.sort().forEach(function(c){
+      var o = document.createElement("option");
+      o.value = c; o.textContent = c;
+      if(c === dailyCfg.category) o.selected = true;
+      dailyCategory.appendChild(o);
+    });
+  }
+
+  function syncDailySheet(){
+    dailyEnabled.checked = dailyCfg.enabled;
+    dailyTime.value = dailyCfg.time;
+    dailyPick.value = dailyCfg.pick;
+    dailyCategoryBlock.style.display = (dailyCfg.pick === "category") ? "flex" : "none";
+    dailyCountSeg.querySelectorAll("button").forEach(function(b){
+      b.classList.toggle("active", parseInt(b.getAttribute("data-count"),10) === dailyCfg.count);
+    });
+    fillDailyCategories();
+    describeDaily();
+  }
+
+  function describeDaily(){
+    if(!dailyCfg.enabled){ dailyStatus.textContent = "התזכורת כבויה כרגע."; return; }
+    var line = "מוכן: " + dailyCfg.count + " מילים כל יום ב-" + dailyCfg.time + ".";
+    if(dailyCfg.lastDone === todayKey()) line += " התרגול של היום כבר בוצע ✓";
+    dailyStatus.textContent = line;
+  }
+
+  dailyCountSeg.querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){
+      dailyCfg.count = parseInt(b.getAttribute("data-count"),10);
+      dailyCountSeg.querySelectorAll("button").forEach(function(x){ x.classList.toggle("active", x === b); });
+    });
+  });
+  dailyPick.addEventListener("change", function(){
+    dailyCategoryBlock.style.display = (dailyPick.value === "category") ? "flex" : "none";
+  });
+
+  $("dailySave").addEventListener("click", function(){
+    dailyCfg.enabled = dailyEnabled.checked;
+    if(/^\d{2}:\d{2}$/.test(dailyTime.value)) dailyCfg.time = dailyTime.value;
+    dailyCfg.pick = dailyPick.value;
+    dailyCfg.category = (dailyPick.value === "category") ? dailyCategory.value : "";
+    // Changing the settings should let today's session run again.
+    dailyCfg.lastSkipped = "";
+    saveDaily();
+    describeDaily();
+    refreshDailyBanner();
+    closeOverlay("dailyOverlay");
+    showToast(dailyCfg.enabled ? "נקבע תרגול יומי ב-" + dailyCfg.time : "התזכורת כובתה");
+  });
+
+  $("dailyStartNow").addEventListener("click", function(){
+    closeOverlay("dailyOverlay");
+    startDailySession();
+  });
+  $("dailyClose").addEventListener("click", function(){ closeOverlay("dailyOverlay"); });
+  $("menuDaily").addEventListener("click", function(){
+    closeOverlay("menuOverlay");
+    syncDailySheet();
+    openOverlay("dailyOverlay");
+  });
+
+  refreshDailyBanner();
 
   // ---------- Init ----------
   renderChips();
