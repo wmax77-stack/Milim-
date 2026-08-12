@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://api.dictionaryapi.dev; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://api.dictionaryapi.dev https://api.datamuse.com https://api.mymemory.translated.net; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="מילון שלי">
@@ -49,6 +49,15 @@
   .speed-toggle{ display:inline-flex; gap:4px; margin:0 0 10px; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:3px; }
   .speed-btn{ border:none; background:transparent; color:var(--ink-soft); font-size:13px; font-weight:600; padding:5px 14px; border-radius:999px; cursor:pointer; font-family:inherit; }
   .speed-btn.active{ background:var(--accent); color:var(--accent-ink); }
+
+  .input-row{ position:relative; }
+  .suggest-list{ position:absolute; top:100%; right:0; left:0; z-index:20; background:var(--card); border:1px solid var(--line);
+    border-radius:14px; margin-top:4px; overflow:hidden; box-shadow:0 10px 26px rgba(0,0,0,0.14); display:none; max-height:220px; overflow-y:auto; }
+  .suggest-list.open{ display:block; }
+  .suggest-item{ padding:11px 14px; font-size:15.5px; direction:ltr; text-align:start; cursor:pointer; border-bottom:1px solid var(--line); }
+  .suggest-item:last-child{ border-bottom:none; }
+  .suggest-item:active{ background:var(--line); }
+  .suggest-loading{ padding:10px 14px; font-size:13px; color:var(--ink-soft); }
 
   .search-row{ margin-bottom:8px; }
   .search-row input{ width:100%; font-size:15px; padding:9px 14px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--ink); outline:none; }
@@ -249,12 +258,14 @@
     <form id="addForm" autocomplete="off">
       <div class="input-row">
         <span class="field-label">מילה באנגלית</span>
-        <input type="text" id="wordInput" placeholder="לדוגמה: apple" maxlength="40" inputmode="text">
+        <input type="text" id="wordInput" placeholder="לדוגמה: apple" maxlength="40" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <div class="suggest-list" id="suggestList"></div>
       </div>
       <div class="two-col">
         <div class="input-row">
           <span class="field-label">פירוש בעברית (לא חובה)</span>
           <input type="text" id="meaningInput" placeholder="תפוח" maxlength="60" inputmode="text">
+          <div class="hint" id="translateHint"></div>
         </div>
         <div class="input-row">
           <span class="field-label">קטגוריה (לא חובה)</span>
@@ -302,6 +313,7 @@
       <div class="input-row">
         <span class="field-label">פירוש בעברית</span>
         <input type="text" id="editMeaning">
+        <div class="hint" id="editTranslateHint"></div>
       </div>
       <div class="input-row">
         <span class="field-label">קטגוריה</span>
@@ -696,6 +708,116 @@
     el.addEventListener("input", function(){ updateAddButton(); hintEl.textContent=""; hintEl.className="hint"; });
   });
 
+  // ---------- Autocomplete for the English word field (free Datamuse API, no key needed) ----------
+  var suggestList = $("suggestList");
+  var suggestTimer = null;
+  var suggestController = null;
+  var suggestSeq = 0;
+
+  function hideSuggestions(){ suggestList.classList.remove("open"); suggestList.innerHTML = ""; }
+
+  async function fetchSuggestions(prefix){
+    if(!("fetch" in window)) return [];
+    if(suggestController) suggestController.abort();
+    suggestController = ("AbortController" in window) ? new AbortController() : null;
+    try{
+      var res = await fetch("https://api.datamuse.com/words?sp=" + encodeURIComponent(prefix.toLowerCase() + "*") + "&max=8",
+        suggestController ? { signal: suggestController.signal } : {});
+      if(!res.ok) return [];
+      var data = await res.json();
+      if(!Array.isArray(data)) return [];
+      return data.map(function(r){ return r.word; }).filter(function(w){ return /^[a-z\-']+$/i.test(w); }).slice(0,6);
+    }catch(e){ return []; }
+  }
+
+  function renderSuggestions(list){
+    suggestList.innerHTML = "";
+    if(!list.length){ hideSuggestions(); return; }
+    list.forEach(function(w){
+      var item = document.createElement("div");
+      item.className = "suggest-item";
+      item.textContent = w;
+      item.addEventListener("mousedown", function(e){ e.preventDefault(); }); // keep focus so click still fires
+      item.addEventListener("click", function(){
+        input.value = w;
+        hideSuggestions();
+        updateAddButton();
+        meaningInput.focus();
+      });
+      suggestList.appendChild(item);
+    });
+    suggestList.classList.add("open");
+  }
+
+  input.addEventListener("input", function(){
+    clearTimeout(suggestTimer);
+    var val = input.value.trim();
+    if(val.length < 2){ hideSuggestions(); return; }
+    var mySeq = ++suggestSeq;
+    suggestTimer = setTimeout(async function(){
+      var results = await fetchSuggestions(val);
+      if(mySeq !== suggestSeq) return; // a newer keystroke came in — drop this stale response
+      renderSuggestions(results);
+    }, 250);
+  });
+  input.addEventListener("blur", function(){ setTimeout(hideSuggestions, 150); });
+  input.addEventListener("focus", function(){ if(input.value.trim().length >= 2 && suggestList.innerHTML) suggestList.classList.add("open"); });
+
+  // ---------- Translation check (free MyMemory API, no key needed) — advisory, never blocks saving ----------
+  function isHebrewText(s){ return /[\u0590-\u05FF]/.test(s); }
+  function normalizeHebrew(s){ return String(s||"").replace(/[\u0591-\u05C7]/g,"").replace(/[^\u0590-\u05FF]/g,"").trim(); }
+
+  async function fetchHebrewSuggestion(word){
+    if(!("fetch" in window)) return "";
+    try{
+      var res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(word) + "&langpair=en|he");
+      if(!res.ok) return "";
+      var data = await res.json();
+      var text = data && data.responseData && data.responseData.translatedText;
+      if(!text) return "";
+      text = String(text).trim();
+      if(!isHebrewText(text)) return ""; // failed/untranslated responses often come back in Latin script
+      return text.slice(0,60);
+    }catch(e){ return ""; }
+  }
+
+  function wireTranslateHint(hintNode, meaningNode, getWord, onAccept){
+    var lastChecked = "";
+    async function check(){
+      var en = getWord();
+      if(!en){ hintNode.textContent = ""; hintNode.onclick = null; return; }
+      if(en === lastChecked && hintNode.textContent) return;
+      lastChecked = en;
+      hintNode.textContent = "בודק תרגום..."; hintNode.className = "hint"; hintNode.style.cursor = "default"; hintNode.onclick = null;
+      var suggestion = await fetchHebrewSuggestion(en);
+      if(en !== lastChecked) return; // word changed again while we were waiting
+      if(!suggestion){ hintNode.textContent = ""; return; }
+      var currentHe = meaningNode.value.trim();
+      if(!currentHe){
+        hintNode.innerHTML = "💡 תרגום מוצע: <b>" + escapeHtml(suggestion) + "</b> (לחצ/י למילוי)";
+        hintNode.className = "hint"; hintNode.style.cursor = "pointer";
+        hintNode.onclick = function(){ meaningNode.value = suggestion; onAccept && onAccept(); hintNode.onclick = null; hintNode.textContent = "✅ מולא לפי ההצעה"; };
+      } else if(normalizeHebrew(currentHe) === normalizeHebrew(suggestion)){
+        hintNode.innerHTML = "✅ התרגום תואם למילון";
+        hintNode.className = "hint"; hintNode.style.cursor = "default";
+      } else {
+        hintNode.innerHTML = "⚠️ הפירוש שהזנת שונה מהמקובל. הצעת המילון: <b>" + escapeHtml(suggestion) + "</b> (לחצ/י להחלפה)";
+        hintNode.className = "hint warn"; hintNode.style.cursor = "pointer";
+        hintNode.onclick = function(){ meaningNode.value = suggestion; onAccept && onAccept(); hintNode.onclick = null; hintNode.textContent = "✅ מולא לפי ההצעה"; hintNode.className = "hint"; };
+      }
+    }
+    return check;
+  }
+
+  var checkAddTranslation = wireTranslateHint($("translateHint"), meaningInput, function(){ return sanitizeEnglish(input.value); }, updateAddButton);
+  input.addEventListener("blur", function(){ setTimeout(checkAddTranslation, 200); });
+  meaningInput.addEventListener("blur", checkAddTranslation);
+
+  var checkEditTranslation = wireTranslateHint($("editTranslateHint"), $("editMeaning"), function(){
+    var entry = words.find(function(w){ return w.id === detailWordId; });
+    return entry ? entry.en : "";
+  }, null);
+
   async function addWord(en, he, category){
     var entry = normalizeEntry({ en:en, he:he, category:category, status:"learning", addedAt:Date.now(), id:uid() });
     if(!entry) return false;
@@ -769,9 +891,12 @@
     $("deleteBtn").classList.remove("confirming");
     $("playRecBtn").disabled = true;
     recordedUrl = null; recordedChunks = [];
+    $("editTranslateHint").textContent = "";
     openOverlay("detailOverlay");
+    if(checkEditTranslation) checkEditTranslation();
   }
   $("detailClose").addEventListener("click", function(){ closeOverlay("detailOverlay"); });
+  $("editMeaning").addEventListener("blur", function(){ if(checkEditTranslation) checkEditTranslation(); });
 
   $("detailSpeakFemale").addEventListener("click", function(){
     var entry = words.find(function(w){ return w.id === detailWordId; });
