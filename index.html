@@ -178,6 +178,9 @@
   .listen-hint{ font-size:13px; color:var(--ink-faint); }
   .text-btn.on{ color:var(--warn); }
 
+  .backfill-bar{ height:7px; border-radius:var(--r-full); background:var(--line); overflow:hidden; margin-bottom:8px; }
+  .backfill-fill{ height:100%; width:0%; background:var(--brand); border-radius:var(--r-full); transition:width .3s ease; }
+
   /* ---------- Hard words ---------- */
   .leech-item{ background:var(--bg); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:9px; }
   .leech-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
@@ -733,6 +736,17 @@
   </div>
 </div>
 
+<div class="overlay" id="backfillOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>השלמת מידע חסר</h2>
+      <button class="close-x" id="backfillClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="backfillBody"></div>
+  </div>
+</div>
+
 <div class="overlay" id="leechOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -932,6 +946,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V2.8h6V4M9 10h6M9 14h4"/></svg>
         <span class="menu-text">הדבקת טקסט<em>שליפת המילים שעדיין לא ברשימה</em></span>
       </button>
+      <button type="button" id="menuBackfill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+        <span class="menu-text">השלמת מידע חסר<em id="backfillMenuSub"></em></span>
+      </button>
       <button type="button" id="menuBulk">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
         <span class="menu-text">הוספה בכמות<em>רשימה של מילה = פירוש</em></span>
@@ -1081,6 +1099,41 @@
     }
   }
 
+  // ---------- Irregular verb forms ----------
+  // Prefix matching catches runs/running, but not took/take or went/go. Without this table
+  // those sentences get rejected as "not containing the word" and the word ends up with no example.
+  var IRREGULAR_SRC = "be:am,is,are,was,were,been,being|become:became|begin:began,begun|bite:bit,bitten|" +
+    "blow:blew,blown|break:broke,broken|bring:brought|build:built|burn:burnt|buy:bought|catch:caught|" +
+    "choose:chose,chosen|come:came|cost:cost|cut:cut|deal:dealt|dig:dug|do:did,done,does|draw:drew,drawn|" +
+    "dream:dreamt|drink:drank,drunk|drive:drove,driven|eat:ate,eaten|fall:fell,fallen|feed:fed|feel:felt|" +
+    "fight:fought|find:found|fly:flew,flown|forget:forgot,forgotten|forgive:forgave,forgiven|freeze:froze,frozen|" +
+    "get:got,gotten|give:gave,given|go:went,gone,goes|grow:grew,grown|hang:hung|have:had,has|hear:heard|" +
+    "hide:hid,hidden|hit:hit|hold:held|hurt:hurt|keep:kept|know:knew,known|lay:laid|lead:led|learn:learnt|" +
+    "leave:left|lend:lent|let:let|lie:lay,lain|lose:lost|make:made|mean:meant|meet:met|pay:paid|put:put|" +
+    "read:read|ride:rode,ridden|ring:rang,rung|rise:rose,risen|run:ran|say:said|see:saw,seen|sell:sold|" +
+    "send:sent|set:set|shake:shook,shaken|shine:shone|shoot:shot|show:showed,shown|shut:shut|sing:sang,sung|" +
+    "sink:sank,sunk|sit:sat|sleep:slept|speak:spoke,spoken|spend:spent|stand:stood|steal:stole,stolen|" +
+    "stick:stuck|strike:struck|swear:swore,sworn|sweep:swept|swim:swam,swum|take:took,taken|teach:taught|" +
+    "tear:tore,torn|tell:told|think:thought|throw:threw,thrown|understand:understood|wake:woke,woken|" +
+    "wear:wore,worn|win:won|write:wrote,written";
+
+  var IRREGULAR_FORMS = {}, IRREGULAR_BASE = {};
+  IRREGULAR_SRC.split("|").forEach(function(pair){
+    var parts = pair.split(":");
+    var base = parts[0], forms = parts[1].split(",");
+    IRREGULAR_FORMS[base] = forms;
+    forms.forEach(function(f){ IRREGULAR_BASE[f] = base; });
+  });
+
+  // Every spelling this word might appear as in a sentence.
+  function wordForms(word){
+    var w = String(word || "").toLowerCase().replace(/[^a-z]/g, "");
+    if(!w) return [];
+    var base = IRREGULAR_BASE[w] || w;
+    var out = [w, base].concat(IRREGULAR_FORMS[base] || []);
+    return out.filter(function(v, i, arr){ return v && arr.indexOf(v) === i; });
+  }
+
   // ---------- Word info lookup: phonetic + an example sentence (best-effort, silent on failure) ----------
   function fetchJSONQuick(url, ms){
     if(!("fetch" in window)) return Promise.resolve(null);
@@ -1091,13 +1144,34 @@
       .catch(function(){ clearTimeout(timeout); return null; });
   }
 
+  // Regex alternatives covering the everyday inflections of one form:
+  // run/runs/running, make/making, study/studies, stop/stopped.
+  function formPattern(f){
+    var alts = [f + "(?:s|es|ed|d|ing|er|est)?"];
+    if(/e$/.test(f)) alts.push(f.slice(0, -1) + "(?:ing|ed|es)");
+    if(/y$/.test(f)) alts.push(f.slice(0, -1) + "i(?:es|ed|er|est)");
+    if(/[^aeiou][aeiou][^aeiouwxy]$/.test(f)) alts.push(f + f.slice(-1) + "(?:ing|ed)");
+    return alts.join("|");
+  }
+  function wordRegex(word){
+    var alts = wordForms(word).map(formPattern).join("|");
+    // Longest match first so "taken" wins over "take".
+    return new RegExp("\\b(?:" + alts + ")\\b", "i");
+  }
+
+  // True if the sentence uses the word in any form: inflected, or an irregular form of it.
+  function sentenceContainsWord(sentence, word){
+    if(!wordForms(word).length) return false;
+    return wordRegex(word).test(String(sentence).toLowerCase());
+  }
+
   function cleanExample(raw, word){
     var t = String(raw || "").trim().replace(/\s+/g, " ");
     if(!t) return "";
     if(t.length > 120 || t.length < 6) return "";               // too long to read at a glance, or not a sentence
     if(!/^[A-Za-z0-9"'(]/.test(t)) return "";                    // must start like an English sentence
     if(/[\u0590-\u05FF\u0600-\u06FF\u4E00-\u9FFF]/.test(t)) return ""; // not English
-    if(t.toLowerCase().indexOf(word.toLowerCase().slice(0, Math.max(3, word.length - 2))) === -1) return "";
+    if(!sentenceContainsWord(t, word)) return "";
     t = t.charAt(0).toUpperCase() + t.slice(1);
     if(!/[.!?]$/.test(t)) t += ".";
     return t;
@@ -2212,6 +2286,8 @@
   }
   $("menuExport").addEventListener("click", function(){ exportWords(); markBackup(); });
   $("menuCsv").addEventListener("click", exportCsv);
+  $("menuBackfill").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderBackfill(); openOverlay("backfillOverlay"); });
+  $("backfillClose").addEventListener("click", function(){ backfillCancel = true; closeOverlay("backfillOverlay"); render(); });
   $("menuCloze").addEventListener("click", function(){ closeOverlay("menuOverlay"); startCloze(); });
   $("menuListen").addEventListener("click", function(){ closeOverlay("menuOverlay"); startListening(); });
   $("menuLeech").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderLeeches(); openOverlay("leechOverlay"); });
@@ -2275,6 +2351,76 @@
       scrollTicking = false;
     });
   }, { passive: true });
+
+  // ---------- Filling in missing information ----------
+  // Sentences and transcriptions are fetched when a word is added, so anything added before
+  // that existed — or added while offline — has gaps. This walks the list and fills them.
+  var backfillRunning = false, backfillCancel = false;
+
+  function wordsMissingInfo(){
+    return words.filter(function(w){ return !w.example || !w.phonetic || w.freq < 0; });
+  }
+
+  function renderBackfill(){
+    var missing = wordsMissingInfo();
+    var noEx = words.filter(function(w){ return !w.example; }).length;
+    if(!words.length){
+      $("backfillBody").innerHTML = '<div class="quiz-empty">אין עדיין מילים ברשימה.</div>';
+      return;
+    }
+    if(!missing.length){
+      $("backfillBody").innerHTML = '<div class="quiz-empty">לכל המילים יש כבר משפט, תעתיק ושכיחות 👌</div>';
+      return;
+    }
+    $("backfillBody").innerHTML =
+      '<div class="stat-grid">' +
+        '<div class="stat-card"><span class="stat-num">' + noEx + '</span><span class="stat-cap">בלי משפט דוגמה</span></div>' +
+        '<div class="stat-card"><span class="stat-num">' + missing.length + '</span><span class="stat-cap">חסר להן מידע כלשהו</span></div>' +
+      '</div>' +
+      '<div class="bulk-example">כל מילה נבדקת בכמה מקורות, כשנייה עד שתיים למילה. אפשר לעצור באמצע — מה שהושלם כבר נשמר.<br>' +
+        'למילים מסוימות פשוט אין משפט מתאים באף מקור, והן יישארו בלי.</div>' +
+      '<div class="backfill-bar"><div class="backfill-fill" id="backfillFill"></div></div>' +
+      '<div class="hint" id="backfillStatus"></div>' +
+      '<button type="button" class="add-btn" id="backfillRun">להשלים ' + missing.length + ' מילים</button>';
+
+    $("backfillRun").addEventListener("click", runBackfill);
+  }
+
+  async function runBackfill(){
+    if(backfillRunning){ backfillCancel = true; return; }
+    var list = wordsMissingInfo();
+    var btn = $("backfillRun"), status = $("backfillStatus"), fill = $("backfillFill");
+    backfillRunning = true; backfillCancel = false;
+    btn.textContent = "עצירה";
+    var filled = 0;
+
+    for(var i = 0; i < list.length; i++){
+      if(backfillCancel) break;
+      var w = list[i];
+      status.textContent = "בודק את " + w.en + " (" + (i+1) + " מתוך " + list.length + ")";
+      fill.style.width = Math.round(((i+1) / list.length) * 100) + "%";
+
+      if(!w.example || !w.phonetic){
+        var info = await fetchWordInfo(w.en);
+        if(info){
+          if(info.phonetic && !w.phonetic) w.phonetic = info.phonetic;
+          if(info.example && !w.example){ w.example = info.example; filled++; }
+        }
+      }
+      if(w.freq < 0){
+        var f = await fetchFrequency(w.en);
+        if(f >= 0) w.freq = f;
+      }
+      saveWords(words);
+      if(i % 5 === 0) render();
+    }
+
+    backfillRunning = false;
+    render();
+    status.textContent = "";
+    showToast(backfillCancel ? ("נעצר — נוספו " + filled + " משפטים") : ("הושלמו " + filled + " משפטים חדשים"));
+    renderBackfill();
+  }
 
   // ---------- Hard words (leeches) ----------
   // A word you keep forgetting is the most expensive thing in the list. Rote repetition
@@ -2407,11 +2553,10 @@
   var clozeBody = $("clozeBody");
 
   function clozeParts(entry){
-    // Match the word even when the sentence uses an inflected form (runs, running, ran-ish).
+    // Find the word in whatever form the sentence uses: runs, running, or took for take.
     var stem = entry.en.toLowerCase().replace(/[^a-z]/g, "");
-    if(stem.length < 3) return null;
-    var re = new RegExp("\\b" + stem.slice(0, Math.max(3, stem.length - 2)) + "[a-z']*", "i");
-    var m = entry.example.match(re);
+    if(stem.length < 2) return null;
+    var m = entry.example.match(wordRegex(entry.en));
     if(!m) return null;
     return { before: entry.example.slice(0, m.index), hidden: m[0], after: entry.example.slice(m.index + m[0].length) };
   }
@@ -2826,6 +2971,8 @@
     var wotd = wordOfTheDay();
     $("wotdMenuSub").textContent = wotd ? wotd.en : "";
     $("dailyMenuSub").textContent = dailyCfg.enabled ? ("פעיל · " + dailyCfg.time) : "כבוי";
+    var missing = wordsMissingInfo().length;
+    $("backfillMenuSub").textContent = missing ? (missing + " מילים חסר להן מידע") : "הכל מושלם";
     var leeches = leechWords().length;
     $("leechMenuSub").textContent = leeches ? (leeches + " מילים נשכחות שוב ושוב") : "אין כרגע";
     var days = daysSinceBackup();
@@ -3189,3 +3336,4 @@
 </script>
 </body>
 </html>
+
