@@ -142,6 +142,75 @@
   .example-text{ direction:ltr; text-align:start; margin:0; font-size:14.5px; line-height:1.55; color:var(--ink); }
   .example-box.loading .example-text{ direction:rtl; font-size:12.5px; color:var(--ink-faint); }
 
+  /* ---------- Four-grade rating ---------- */
+  .grade-row{ display:flex; gap:6px; }
+  .grade-btn{ flex:1; border:none; border-radius:var(--r-sm); padding:12px 4px; cursor:pointer;
+    font-family:inherit; font-size:13.5px; font-weight:700; display:flex; flex-direction:column;
+    align-items:center; gap:3px; transition:transform .12s ease; }
+  .grade-btn em{ font-style:normal; font-size:10px; font-weight:600; opacity:.75; }
+  .grade-btn:active{ transform:scale(0.95); }
+  .grade-btn.g0{ background:var(--warn-tint); color:var(--warn); }
+  .grade-btn.g1{ background:#FEF7E0; color:#B06000; }
+  .grade-btn.g2{ background:var(--brand-tint); color:var(--brand-deep); }
+  .grade-btn.g3{ background:var(--good-tint); color:var(--good); }
+  .fc-note{ direction:rtl; font-size:12.5px; color:var(--ink-soft); margin-top:10px; padding:8px 12px;
+    background:var(--surface); border-radius:var(--r-xs); line-height:1.5; }
+
+  /* ---------- Cloze ---------- */
+  .cloze-card{ background:var(--bg); border-radius:var(--r-lg); padding:30px 20px; text-align:center;
+    font-size:18px; line-height:1.75; margin-bottom:12px; }
+  .cloze-gap{ font-family:var(--mono); color:var(--brand); font-weight:700; letter-spacing:1px;
+    border-bottom:2px solid var(--brand); padding:0 4px; }
+  .cloze-gap.ok{ color:var(--good); border-color:var(--good); }
+  .cloze-gap.no{ color:var(--warn); border-color:var(--warn); }
+  .cloze-he{ direction:rtl; text-align:center; font-size:15px; color:var(--ink-soft); margin-bottom:14px; }
+
+  /* ---------- Listening ---------- */
+  .listen-card{ background:var(--bg); border-radius:var(--r-lg); padding:34px 20px; text-align:center;
+    min-height:170px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; margin-bottom:14px; }
+  .listen-play{ width:74px; height:74px; border-radius:50%; border:none; background:var(--brand); color:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--sh-brand); }
+  .listen-play svg{ width:32px; height:32px; }
+  .listen-play:active{ transform:scale(0.93); }
+  .listen-word{ font-size:28px; font-weight:800; letter-spacing:-0.03em; }
+  .listen-he{ direction:rtl; font-size:18px; font-weight:700; color:var(--brand); }
+  .listen-hint{ font-size:13px; color:var(--ink-faint); }
+  .text-btn.on{ color:var(--warn); }
+
+  /* ---------- Hard words ---------- */
+  .leech-item{ background:var(--bg); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:9px; }
+  .leech-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .leech-en{ font-size:17px; font-weight:700; }
+  .leech-count{ font-size:10.5px; font-weight:700; color:var(--warn); background:var(--warn-tint);
+    padding:3px 9px; border-radius:var(--r-full); }
+  .leech-he{ direction:rtl; font-size:13px; color:var(--ink-soft); margin-top:3px; }
+  .leech-note{ width:100%; margin-top:9px; direction:rtl; text-align:start; font-size:13.5px; padding:9px 11px;
+    border-radius:var(--r-xs); border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
+    outline:none; font-family:inherit; }
+  .leech-note:focus{ border-color:var(--brand); }
+
+  /* ---------- Related words ---------- */
+  .related-box{ display:none; margin-bottom:16px; }
+  .rel-row{ margin-top:8px; }
+  .rel-label{ font-size:11px; color:var(--ink-faint); font-weight:600; }
+  .rel-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
+  .rel-chip{ border:none; background:var(--bg); color:var(--ink); font-size:12.5px; font-weight:600;
+    padding:5px 11px; border-radius:var(--r-full); cursor:pointer; font-family:inherit; }
+  .rel-chip.static{ color:var(--ink-soft); cursor:default; }
+  .rel-chip:not(.static):active{ background:var(--brand); color:#fff; }
+
+  /* ---------- Card badges ---------- */
+  .word-freq{ display:inline-block; font-size:10px; font-weight:700; padding:2px 8px;
+    border-radius:var(--r-full); margin-top:6px; margin-inline-start:5px; }
+  .word-freq.f1{ background:var(--good-tint); color:var(--good); }
+  .word-freq.f2{ background:#E8F0FE; color:var(--brand-deep); }
+  .word-freq.f3{ background:var(--bg); color:var(--ink-soft); }
+  .word-freq.f4{ background:#FEF7E0; color:#B06000; }
+  .word-leech{ display:inline-block; font-size:10px; font-weight:700; padding:2px 8px;
+    border-radius:var(--r-full); margin-top:6px; margin-inline-start:5px;
+    background:var(--warn-tint); color:var(--warn); }
+
   /* ---------- Voice add ---------- */
   .voice-add-word{ text-align:center; font-size:32px; font-weight:800; letter-spacing:-0.03em; min-height:40px; }
   .voice-add-sub{ text-align:center; font-size:13px; color:var(--ink-soft); margin-top:8px; line-height:1.55; }
@@ -487,6 +556,7 @@
           <option value="new">חדש קודם</option>
           <option value="old">ישן קודם</option>
           <option value="az">א-ב (אנגלית)</option>
+          <option value="freq">לפי שכיחות באנגלית</option>
         </select>
       </div>
     </div>
@@ -584,6 +654,10 @@
 
     <div class="detail-fields">
       <div class="input-row">
+        <span class="field-label">עוגן זיכרון (הערה אישית)</span>
+        <input type="text" id="editNote" placeholder="דמיון לעברית, פירוק המילה, משפט משלכם" maxlength="200">
+      </div>
+      <div class="input-row">
         <span class="field-label">פירוש בעברית</span>
         <input type="text" id="editMeaning">
         <div class="hint" id="editTranslateHint"></div>
@@ -600,6 +674,8 @@
     </div>
 
     <button type="button" class="add-btn" id="saveDetailBtn">שמור שינויים</button>
+
+    <div class="related-box" id="relatedBox"></div>
 
     <div class="delete-zone">
       <button type="button" id="deleteBtn">מחק מילה</button>
@@ -635,6 +711,39 @@
 </div>
 
 <!-- Menu sheet -->
+<div class="overlay" id="clozeOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>השלמת משפט</h2>
+      <button class="close-x" id="clozeClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="clozeBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="listenOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>מצב האזנה</h2>
+      <button class="close-x" id="listenClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="listenBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="leechOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>המילים הקשות שלי</h2>
+      <button class="close-x" id="leechClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="leechBody"></div>
+  </div>
+</div>
+
 <div class="overlay" id="voiceAddOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -771,6 +880,14 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.5"/></svg>
         <span class="menu-text">חזרה חכמה<em id="smartCount"></em></span>
       </button>
+      <button type="button" id="menuCloze">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h7M14 7h7M3 12h4M11 12h10M3 17h7M14 17h7"/></svg>
+        <span class="menu-text">השלמת משפט<em>המילה החסרה בהקשר אמיתי</em></span>
+      </button>
+      <button type="button" id="menuListen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 18 0M3 12v4a2 2 0 0 0 2 2h1v-6H5a2 2 0 0 0-2 2zM21 12v4a2 2 0 0 1-2 2h-1v-6h1a2 2 0 0 1 2 2z"/></svg>
+        <span class="menu-text">מצב האזנה<em>כולל מצב רדיו ללא ידיים</em></span>
+      </button>
       <button type="button" id="menuFlash">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M7 10h6"/></svg>
         <span class="menu-text">כרטיסיות: אנגלית ← עברית<em>זיהוי מילים</em></span>
@@ -794,6 +911,10 @@
       <button type="button" id="menuStats">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
         <span class="menu-text">סטטיסטיקה ורצף ימים<em id="streakMenuSub"></em></span>
+      </button>
+      <button type="button" id="menuLeech">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <span class="menu-text">המילים הקשות שלי<em id="leechMenuSub"></em></span>
       </button>
       <button type="button" id="menuWotd">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
@@ -822,6 +943,10 @@
       <button type="button" id="menuExport">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
         ייצוא הרשימה לקובץ גיבוי
+      </button>
+      <button type="button" id="menuCsv">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <span class="menu-text">ייצוא CSV ל-Anki / Quizlet<em>מעבר לאפליקציה אחרת</em></span>
       </button>
       <label for="importInput">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M4 21h16"/></svg>
@@ -874,12 +999,17 @@
     var due = typeof e.due === "number" ? e.due : 0;
     var reviews = typeof e.reviews === "number" && e.reviews >= 0 ? Math.floor(e.reviews) : 0;
     var lapses = typeof e.lapses === "number" && e.lapses >= 0 ? Math.floor(e.lapses) : 0;
+    var ease = (typeof e.ease === "number" && e.ease >= 1.3 && e.ease <= 3.2) ? e.ease : 2.5;
+    var interval = (typeof e.interval === "number" && e.interval >= 0) ? e.interval : 0;
+    var note = typeof e.note === "string" ? e.note.slice(0,200) : "";
+    var freq = (typeof e.freq === "number" && e.freq >= 0) ? e.freq : -1;
     var status = (e.status === "known") ? "known" : "learning";
-    if(status === "known" && !reviews && !level) level = 3;   // respect a pre-existing "learned" mark
+    if(status === "known" && !reviews && !level){ level = 3; if(!interval) interval = 7; }  // respect a pre-existing "learned" mark
     var addedAt = typeof e.addedAt === "number" ? e.addedAt : Date.now();
     var id = typeof e.id === "string" && e.id ? e.id : uid();
     return { id:id, en:en, he:he, category:category, phonetic:phonetic, example:example,
-             status:status, addedAt:addedAt, level:level, due:due, reviews:reviews, lapses:lapses };
+             status:status, addedAt:addedAt, level:level, due:due, reviews:reviews, lapses:lapses,
+             ease:ease, interval:interval, note:note, freq:freq };
   }
 
   function loadWords(){
@@ -1141,7 +1271,11 @@
       list = list.filter(function(w){ return w.en.toLowerCase().indexOf(q) !== -1 || w.he.indexOf(currentSearch) !== -1; });
     }
     var sortMode = sortSelect.value;
-    if(sortMode === "az") list.sort(function(a,b){ return a.en.localeCompare(b.en); });
+    if(sortMode === "freq") list.sort(function(a,b){
+      var fa = (a.freq >= 0) ? a.freq : -1, fb = (b.freq >= 0) ? b.freq : -1;
+      return fb - fa;
+    });
+    else if(sortMode === "az") list.sort(function(a,b){ return a.en.localeCompare(b.en); });
     else if(sortMode === "old") list.sort(function(a,b){ return a.addedAt - b.addedAt; });
     else list.sort(function(a,b){ return b.addedAt - a.addedAt; });
     return list;
@@ -1210,6 +1344,19 @@
         cat.className = "word-cat";
         cat.textContent = entry.category;
         wordBlock.appendChild(cat);
+      }
+      var band = freqBand(entry.freq);
+      if(band){
+        var fb = document.createElement("span");
+        fb.className = "word-freq " + band.cls;
+        fb.textContent = band.label;
+        wordBlock.appendChild(fb);
+      }
+      if(isLeech(entry)){
+        var lf = document.createElement("span");
+        lf.className = "word-leech";
+        lf.textContent = "קשה";
+        wordBlock.appendChild(lf);
       }
       if(entry.example){
         var ex = document.createElement("div");
@@ -1599,6 +1746,9 @@
       if(info.example) entry.example = info.example;
       saveWords(words); render();
     });
+    fetchFrequency(entry.en).then(function(f){
+      if(f >= 0){ entry.freq = f; saveWords(words); render(); }
+    });
     return true;
   }
 
@@ -1657,6 +1807,7 @@
     $("detailPhon").textContent = entry.phonetic || "";
     $("editMeaning").value = entry.he;
     $("editCategory").value = entry.category;
+    $("editNote").value = entry.note || "";
     $("setLearning").classList.toggle("active", entry.status !== "known");
     $("setKnown").classList.toggle("active", entry.status === "known");
     $("deleteBtn").textContent = "מחק מילה";
@@ -1665,6 +1816,7 @@
     recordedUrl = null; recordedChunks = [];
     $("editTranslateHint").textContent = "";
     renderExample(entry);
+    renderRelated(entry);
     openOverlay("detailOverlay");
     if(checkEditTranslation) checkEditTranslation();
   }
@@ -1759,6 +1911,7 @@
     var category = sanitizeCategory($("editCategory").value);
     if(he === null || category === null){ showToast("יש תווים לא תקינים בשדה"); return; }
     entry.he = he; entry.category = category;
+    entry.note = $("editNote").value.slice(0,200);
     entry.status = $("setKnown").classList.contains("active") ? "known" : "learning";
     saveWords(words);
     renderChips(); render();
@@ -1780,27 +1933,49 @@
   });
 
   // ---------- Spaced repetition ----------
-  // Each correct answer moves a word up a level and pushes its next review further away;
-  // a wrong answer drops it back so it comes around again quickly. The gaps grow roughly
-  // the way memory fades, which is the whole point: you see a word right before you'd forget it.
-  var SRS_DAYS = [0, 1, 3, 7, 16, 35, 90];
+  // Every word carries its own ease factor, so a word that keeps tripping you up comes back
+  // sooner than one you find easy — that per-word difficulty is what fixed-step schedules miss.
+  // Grades: 0 = again, 1 = hard, 2 = good, 3 = easy.
   var DAY_MS = 86400000;
+  var MIN_EASE = 1.3, MAX_EASE = 3.2, MAX_INTERVAL = 365;
+  var LEECH_LAPSES = 4;   // a word that has been forgotten this many times needs different treatment
 
-  function srsAnswer(entry, correct){
-    if(correct){
-      entry.level = Math.min(entry.level + 1, SRS_DAYS.length - 1);
-    } else {
-      entry.level = Math.max(0, entry.level - 2);
+  function srsRate(entry, grade){
+    var iv = entry.interval || 0;
+    if(grade === 0){
+      entry.ease = Math.max(MIN_EASE, entry.ease - 0.2);
       entry.lapses++;
+      iv = 0;                                   // back to today
+    } else if(grade === 1){
+      entry.ease = Math.max(MIN_EASE, entry.ease - 0.15);
+      iv = iv ? Math.max(1, iv * 1.2) : 1;
+    } else if(grade === 2){
+      iv = iv ? iv * entry.ease : 1;
+    } else {
+      entry.ease = Math.min(MAX_EASE, entry.ease + 0.15);
+      iv = iv ? iv * entry.ease * 1.3 : 3;
     }
+    entry.interval = Math.min(MAX_INTERVAL, Math.round(iv * 10) / 10);
+    entry.due = Date.now() + (entry.interval ? entry.interval * DAY_MS : 60000); // "again" returns in a minute
     entry.reviews++;
-    entry.due = Date.now() + SRS_DAYS[entry.level] * DAY_MS;
-    // A word counts as learned once it survives a gap of a week or more. A correct answer
-    // never demotes a word — only a mistake sends it back to being in practice.
-    if(correct){ if(entry.level >= 3) entry.status = "known"; }
-    else { entry.status = "learning"; }
-    recordReview(correct);
+    entry.level = intervalToLevel(entry.interval);
+    // Learned once it holds for a week; only a failure sends it back to being in practice.
+    if(grade === 0) entry.status = "learning";
+    else if(entry.interval >= 7) entry.status = "known";
+    recordReview(grade > 0);
     saveWords(words);
+  }
+  function intervalToLevel(iv){
+    if(iv >= 90) return 6; if(iv >= 35) return 5; if(iv >= 16) return 4;
+    if(iv >= 7) return 3;  if(iv >= 3) return 2;  if(iv >= 1) return 1;
+    return 0;
+  }
+  // Modes that only know right/wrong map onto the same scale.
+  function srsAnswer(entry, correct){ srsRate(entry, correct ? 2 : 0); }
+
+  function isLeech(w){ return w.lapses >= LEECH_LAPSES; }
+  function leechWords(){
+    return words.filter(isLeech).sort(function(a,b){ return b.lapses - a.lapses; });
   }
 
   function dueWords(){
@@ -1921,18 +2096,29 @@
         '<div class="fc-word">' + escapeHtml(entry.en) + '</div>' +
         (entry.phonetic ? '<div class="fc-phon">' + escapeHtml(entry.phonetic) + '</div>' : '') +
         (quizRevealed ? ('<div class="fc-meaning">' + escapeHtml(entry.he || "(אין פירוש שמור)") + '</div>' +
-          (entry.example ? '<div class="fc-ex">' + escapeHtml(entry.example) + '</div>' : '')) : '<div class="fc-hint">הקש/י על הכרטיסייה כדי לראות את הפירוש</div>') +
+          (entry.example ? '<div class="fc-ex">' + escapeHtml(entry.example) + '</div>' : '') +
+          (entry.note ? '<div class="fc-note">' + escapeHtml(entry.note) + '</div>' : '')) : '<div class="fc-hint">הקש/י על הכרטיסייה כדי לראות את הפירוש</div>') +
       '</div>' +
-      '<div class="quiz-speak"><button type="button" class="voice-row" id="quizSpeakBtn" style="border:1px solid var(--line); border-radius:12px; padding:10px 16px; background:var(--card); color:var(--ink);">🔊 השמע הגייה</button></div>' +
-      '<div class="quiz-actions">' +
-        '<button type="button" id="quizDontKnow">לא ידעתי 🔁</button>' +
-        '<button type="button" id="quizKnow">ידעתי ✓</button>' +
-      '</div>';
+      '<div class="quiz-speak"><button type="button" class="voice-btn" id="quizSpeakBtn">שמיעת ההגייה</button></div>' +
+      (quizRevealed
+        ? '<div class="grade-row">' +
+            gradeBtn(0, "שוב", entry) + gradeBtn(1, "קשה", entry) +
+            gradeBtn(2, "טוב", entry) + gradeBtn(3, "קל", entry) +
+          '</div>'
+        : '<button type="button" class="add-btn" id="quizReveal">הצג את הפירוש</button>');
 
     $("flashcard").addEventListener("click", function(){ quizRevealed = !quizRevealed; renderQuiz(); });
     $("quizSpeakBtn").addEventListener("click", function(ev){ ev.stopPropagation(); speakWord(entry.en, "female", null); });
-    $("quizKnow").addEventListener("click", function(){ srsAnswer(entry, true); nextQuizCard(); });
-    $("quizDontKnow").addEventListener("click", function(){ srsAnswer(entry, false); nextQuizCard(); });
+    if(quizRevealed){
+      quizBody.querySelectorAll(".grade-btn").forEach(function(b){
+        b.addEventListener("click", function(){
+          srsRate(entry, parseInt(b.getAttribute("data-grade"),10));
+          nextQuizCard();
+        });
+      });
+    } else {
+      $("quizReveal").addEventListener("click", function(){ quizRevealed = true; renderQuiz(); });
+    }
 
     // basic swipe support
     var card = $("flashcard");
@@ -1943,10 +2129,28 @@
       var dx = e.changedTouches[0].clientX - startX;
       startX = null;
       if(Math.abs(dx) < 60) return;
-      if(dx > 0){ entry.status = "known"; } else { entry.status = "learning"; }
-      saveWords(words); nextQuizCard();
+      srsRate(entry, dx > 0 ? 2 : 0);   // swipe right = good, swipe left = again
+      nextQuizCard();
     }, {passive:true});
   }
+  // Shows what each answer costs you: the gap until the word returns.
+  function previewInterval(entry, grade){
+    var iv = entry.interval || 0, ease = entry.ease;
+    if(grade === 0) return "דקה";
+    if(grade === 1) iv = iv ? Math.max(1, iv * 1.2) : 1;
+    else if(grade === 2) iv = iv ? iv * ease : 1;
+    else iv = iv ? iv * ease * 1.3 : 3;
+    iv = Math.min(MAX_INTERVAL, Math.round(iv));
+    if(iv <= 1) return "יום";
+    if(iv < 30) return iv + " ימים";
+    if(iv < 365) return Math.round(iv/30) + " חודשים";
+    return "שנה";
+  }
+  function gradeBtn(grade, label, entry){
+    return '<button type="button" class="grade-btn g' + grade + '" data-grade="' + grade + '">' +
+      label + '<em>' + previewInterval(entry, grade) + '</em></button>';
+  }
+
   function nextQuizCard(){ quizIndex++; quizRevealed = false; render(); renderQuiz(); }
 
   function escapeHtml(str){
@@ -2006,7 +2210,14 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
   }
-  $("menuExport").addEventListener("click", exportWords);
+  $("menuExport").addEventListener("click", function(){ exportWords(); markBackup(); });
+  $("menuCsv").addEventListener("click", exportCsv);
+  $("menuCloze").addEventListener("click", function(){ closeOverlay("menuOverlay"); startCloze(); });
+  $("menuListen").addEventListener("click", function(){ closeOverlay("menuOverlay"); startListening(); });
+  $("menuLeech").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderLeeches(); openOverlay("leechOverlay"); });
+  $("clozeClose").addEventListener("click", function(){ closeOverlay("clozeOverlay"); render(); });
+  $("listenClose").addEventListener("click", function(){ stopRadio(); closeOverlay("listenOverlay"); render(); });
+  $("leechClose").addEventListener("click", function(){ closeOverlay("leechOverlay"); render(); });
   $("exportBtnFooter").addEventListener("click", exportWords);
   $("importBtnFooter").addEventListener("click", function(){ $("importInput").click(); });
 
@@ -2064,6 +2275,299 @@
       scrollTicking = false;
     });
   }, { passive: true });
+
+  // ---------- Hard words (leeches) ----------
+  // A word you keep forgetting is the most expensive thing in the list. Rote repetition
+  // has already failed on it, so the screen pushes you toward a memory hook instead.
+  function renderLeeches(){
+    var list = leechWords();
+    if(!list.length){
+      $("leechBody").innerHTML = '<div class="quiz-empty">אין כרגע מילים בעייתיות 👌<br>מילה נכנסת לכאן אחרי ' + LEECH_LAPSES + ' שכחות.</div>';
+      return;
+    }
+    $("leechBody").innerHTML =
+      '<div class="bulk-example">המילים האלה נשכחו שוב ושוב. חזרה נוספת כנראה לא תעזור — שווה לכתוב לכל אחת עוגן זיכרון אישי: דמיון לעברית, פירוק המילה, או משפט משלכם.</div>' +
+      list.map(function(w, i){
+        return '<div class="leech-item" data-id="' + escapeHtml(w.id) + '">' +
+          '<div class="leech-head"><span class="leech-en" dir="ltr">' + escapeHtml(w.en) + '</span>' +
+            '<span class="leech-count">' + w.lapses + ' שכחות</span></div>' +
+          '<div class="leech-he">' + escapeHtml(w.he || "") + '</div>' +
+          '<input type="text" class="leech-note" data-i="' + i + '" placeholder="עוגן זיכרון..." value="' + escapeHtml(w.note || "") + '">' +
+        '</div>';
+      }).join("") +
+      '<button type="button" class="add-btn" id="leechPractice">לתרגל את ' + list.length + ' המילים האלה</button>';
+
+    $("leechBody").querySelectorAll(".leech-note").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var w = list[parseInt(inp.getAttribute("data-i"),10)];
+        w.note = inp.value.slice(0,200);
+        saveWords(words);
+        showToast("העוגן נשמר");
+      });
+    });
+    $("leechPractice").addEventListener("click", function(){
+      closeOverlay("leechOverlay");
+      quizTitle.textContent = "מילים קשות";
+      quizQueue = list.slice(0, 20); quizIndex = 0; quizRevealed = false;
+      renderQuiz(); openOverlay("quizOverlay");
+    });
+  }
+
+  // ---------- Word frequency ----------
+  // Datamuse reports how common a word is (occurrences per million). Learning frequent
+  // words first is the highest-value ordering there is.
+  async function fetchFrequency(word){
+    var data = await fetchJSONQuick("https://api.datamuse.com/words?sp=" + encodeURIComponent(word.toLowerCase()) + "&md=f&max=1");
+    if(!Array.isArray(data) || !data[0] || !Array.isArray(data[0].tags)) return -1;
+    var tag = data[0].tags.find(function(t){ return t.indexOf("f:") === 0; });
+    return tag ? parseFloat(tag.slice(2)) : -1;
+  }
+  function freqBand(f){
+    if(f < 0) return null;
+    if(f >= 100) return { label:"נפוצה מאוד", cls:"f1" };
+    if(f >= 10)  return { label:"נפוצה", cls:"f2" };
+    if(f >= 1)   return { label:"בינונית", cls:"f3" };
+    return { label:"נדירה", cls:"f4" };
+  }
+
+  // ---------- Related words ----------
+  // Synonyms and the words that typically appear alongside it: vocabulary is a network,
+  // and a word with neighbours is much easier to hold onto than an isolated one.
+  var relatedCache = {};
+  async function fetchRelated(word){
+    var key = word.toLowerCase();
+    if(relatedCache[key]) return relatedCache[key];
+    var pair = await Promise.all([
+      fetchJSONQuick("https://api.datamuse.com/words?rel_syn=" + encodeURIComponent(key) + "&max=6"),
+      fetchJSONQuick("https://api.datamuse.com/words?rel_bgb=" + encodeURIComponent(key) + "&max=6")
+    ]);
+    var out = {
+      synonyms: (Array.isArray(pair[0]) ? pair[0] : []).map(function(x){ return x.word; }).slice(0,6),
+      collocations: (Array.isArray(pair[1]) ? pair[1] : []).map(function(x){ return x.word + " " + key; }).slice(0,4)
+    };
+    relatedCache[key] = out;
+    return out;
+  }
+
+  function renderRelated(entry){
+    var box = $("relatedBox");
+    box.style.display = "block";
+    box.innerHTML = '<span class="field-label">מילים קשורות</span><div class="hint">טוען...</div>';
+    fetchRelated(entry.en).then(function(rel){
+      if(detailWordId !== entry.id) return;
+      if(!rel.synonyms.length && !rel.collocations.length){ box.style.display = "none"; return; }
+      box.innerHTML = '<span class="field-label">מילים קשורות</span>' +
+        (rel.synonyms.length ? '<div class="rel-row"><span class="rel-label">נרדפות</span><div class="rel-chips">' +
+          rel.synonyms.map(function(w){ return '<button type="button" class="rel-chip" dir="ltr">' + escapeHtml(w) + '</button>'; }).join("") +
+        '</div></div>' : '') +
+        (rel.collocations.length ? '<div class="rel-row"><span class="rel-label">צירופים נפוצים</span><div class="rel-chips">' +
+          rel.collocations.map(function(w){ return '<span class="rel-chip static" dir="ltr">' + escapeHtml(w) + '</span>'; }).join("") +
+        '</div></div>' : '');
+      box.querySelectorAll(".rel-chip:not(.static)").forEach(function(chip){
+        chip.addEventListener("click", function(){ speakWord(chip.textContent, "female", null); });
+      });
+    });
+  }
+
+  // ---------- CSV export for Anki / Quizlet ----------
+  function exportCsv(){
+    if(!words.length){ showToast("אין מילים לייצוא"); return; }
+    var rows = words.map(function(w){
+      var back = [w.he, w.phonetic, w.example, w.note].filter(Boolean).join(" — ");
+      return csvCell(w.en) + "," + csvCell(back) + "," + csvCell(w.category || "");
+    });
+    var csv = "\uFEFF" + rows.join("\r\n");   // BOM so Excel reads the Hebrew correctly
+    var blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "my-words-" + todayKey() + ".csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    markBackup();
+    showToast("קובץ CSV ירד — מוכן ל-Anki או Quizlet");
+  }
+  function csvCell(v){ return '"' + String(v || "").replace(/"/g, '""') + '"'; }
+
+  // ---------- Backup reminder ----------
+  // Everything lives in this browser's local storage, and iOS clears that for sites left
+  // unopened. A nudge is cheaper than losing the list.
+  function lastBackup(){ return localStorage.getItem("myWordsApp.lastBackup") || ""; }
+  function markBackup(){ try{ localStorage.setItem("myWordsApp.lastBackup", todayKey()); }catch(e){} }
+  function daysSinceBackup(){
+    var last = lastBackup();
+    if(!last) return 999;
+    return Math.floor((new Date(todayKey()) - new Date(last)) / DAY_MS);
+  }
+
+  // ---------- Practice mode: fill the gap in a real sentence ----------
+  // Retrieving a word from a sentence is closer to how you'll actually need it than
+  // recognising it on a card, and it teaches the word's typical company at the same time.
+  var clozeQueue = [], clozeIndex = 0, clozeChecked = false, clozeCorrect = 0;
+  var clozeBody = $("clozeBody");
+
+  function clozeParts(entry){
+    // Match the word even when the sentence uses an inflected form (runs, running, ran-ish).
+    var stem = entry.en.toLowerCase().replace(/[^a-z]/g, "");
+    if(stem.length < 3) return null;
+    var re = new RegExp("\\b" + stem.slice(0, Math.max(3, stem.length - 2)) + "[a-z']*", "i");
+    var m = entry.example.match(re);
+    if(!m) return null;
+    return { before: entry.example.slice(0, m.index), hidden: m[0], after: entry.example.slice(m.index + m[0].length) };
+  }
+
+  function startCloze(){
+    var pool = words.filter(function(w){ return w.example && clozeParts(w); });
+    if(!pool.length){
+      clozeBody.innerHTML = '<div class="quiz-empty">אין עדיין מילים עם משפט דוגמה.<br>המשפטים נשלפים אוטומטית — נסו לפתוח כמה מילים ברשימה.</div>';
+      openOverlay("clozeOverlay");
+      return;
+    }
+    clozeQueue = pool.sort(function(){ return Math.random() - 0.5; }).slice(0, 10);
+    clozeIndex = 0; clozeChecked = false; clozeCorrect = 0;
+    renderCloze();
+    openOverlay("clozeOverlay");
+  }
+
+  function renderCloze(){
+    if(clozeIndex >= clozeQueue.length){
+      clozeBody.innerHTML =
+        '<div class="quiz-empty">סיימת את הסבב<br><strong>' + clozeCorrect + ' מתוך ' + clozeQueue.length + '</strong> נכון</div>' +
+        '<button type="button" class="add-btn" id="clozeRestart">סבב נוסף</button>';
+      $("clozeRestart").addEventListener("click", startCloze);
+      return;
+    }
+    var entry = clozeQueue[clozeIndex];
+    var parts = clozeParts(entry);
+    clozeBody.innerHTML =
+      '<div class="quiz-progress">' + (clozeIndex+1) + ' / ' + clozeQueue.length + '</div>' +
+      '<div class="cloze-card"><span dir="ltr">' + escapeHtml(parts.before) +
+        '<span class="cloze-gap" id="clozeGap">' + "_".repeat(Math.min(parts.hidden.length, 12)) + '</span>' +
+        escapeHtml(parts.after) + '</span></div>' +
+      '<div class="cloze-he">' + escapeHtml(entry.he || "") + '</div>' +
+      '<input type="text" id="clozeInput" class="type-input" placeholder="המילה החסרה" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">' +
+      '<div class="type-feedback" id="clozeFeedback"></div>' +
+      '<button type="button" class="add-btn" id="clozeCheck">בדיקה</button>' +
+      '<button type="button" class="text-btn" id="clozeHint">רמז: האות הראשונה</button>';
+
+    var input = $("clozeInput"), feedback = $("clozeFeedback"), checkBtn = $("clozeCheck");
+    input.focus();
+
+    function finish(correct){
+      clozeChecked = true;
+      srsAnswer(entry, correct);
+      if(correct) clozeCorrect++;
+      input.disabled = true;
+      $("clozeGap").textContent = parts.hidden;
+      $("clozeGap").classList.add(correct ? "ok" : "no");
+      feedback.className = "type-feedback " + (correct ? "ok" : "no");
+      feedback.innerHTML = correct ? "✓ נכון" : '✗ המילה: <strong dir="ltr">' + escapeHtml(entry.en) + '</strong>';
+      checkBtn.textContent = (clozeIndex + 1 < clozeQueue.length) ? "המשפט הבא" : "סיום";
+      speakText(entry.example, "female", null);
+    }
+
+    checkBtn.addEventListener("click", function(){
+      if(clozeChecked){ clozeIndex++; clozeChecked = false; renderCloze(); return; }
+      var val = input.value.trim();
+      if(!val) return;
+      var target = normalizeAnswer(entry.en), given = normalizeAnswer(val);
+      // The inflected form in the sentence counts too.
+      finish(given === target || given === normalizeAnswer(parts.hidden));
+    });
+    input.addEventListener("keydown", function(e){ if(e.key === "Enter") checkBtn.click(); });
+    $("clozeHint").addEventListener("click", function(){
+      if(clozeChecked) return;
+      input.value = entry.en.charAt(0);
+      input.focus();
+    });
+  }
+
+  // ---------- Practice mode: listening ----------
+  var listenQueue = [], listenIndex = 0, listenRevealed = false, radioOn = false, radioTimer = null;
+  var listenBody = $("listenBody");
+
+  function startListening(){
+    var pool = dueWords();
+    if(pool.length < 5) pool = words.slice().sort(function(){ return Math.random() - 0.5; });
+    if(!pool.length){
+      listenBody.innerHTML = '<div class="quiz-empty">אין עדיין מילים לתרגול.</div>';
+      openOverlay("listenOverlay");
+      return;
+    }
+    listenQueue = pool.slice(0, 12);
+    listenIndex = 0; listenRevealed = false;
+    renderListen();
+    openOverlay("listenOverlay");
+    setTimeout(function(){ if(listenQueue[0]) speakWord(listenQueue[0].en, "female", null); }, 350);
+  }
+
+  function stopRadio(){
+    radioOn = false;
+    if(radioTimer){ clearTimeout(radioTimer); radioTimer = null; }
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+
+  // Hands-free: word, pause, meaning, next. Made for walking or driving.
+  function radioStep(){
+    if(!radioOn) return;
+    if(listenIndex >= listenQueue.length){ stopRadio(); renderListen(); return; }
+    var entry = listenQueue[listenIndex];
+    listenRevealed = false; renderListen();
+    speakWord(entry.en, "female", null);
+    radioTimer = setTimeout(function(){
+      if(!radioOn) return;
+      listenRevealed = true; renderListen();
+      if(entry.he) speakText(entry.he, "female", null);
+      radioTimer = setTimeout(function(){
+        if(!radioOn) return;
+        listenIndex++;
+        radioStep();
+      }, 3200);
+    }, 3200);
+  }
+
+  function renderListen(){
+    if(listenIndex >= listenQueue.length){
+      listenBody.innerHTML = '<div class="quiz-empty">סיימת את הסבב 👏</div>' +
+        '<button type="button" class="add-btn" id="listenRestart">סבב נוסף</button>';
+      $("listenRestart").addEventListener("click", startListening);
+      return;
+    }
+    var entry = listenQueue[listenIndex];
+    listenBody.innerHTML =
+      '<div class="quiz-progress">' + (listenIndex+1) + ' / ' + listenQueue.length + '</div>' +
+      '<div class="listen-card">' +
+        '<button type="button" class="listen-play" id="listenPlay" aria-label="השמע שוב">' +
+          '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/><path d="M16.5 12c0-1.77-.77-3.29-2-4.32v8.63c1.23-1.02 2-2.54 2-4.31z"/></svg>' +
+        '</button>' +
+        (listenRevealed
+          ? '<div class="listen-word" dir="ltr">' + escapeHtml(entry.en) + '</div>' +
+            '<div class="listen-he">' + escapeHtml(entry.he || "") + '</div>'
+          : '<div class="listen-hint">האזינו ונסו להיזכר במילה</div>') +
+      '</div>' +
+      (listenRevealed
+        ? '<div class="grade-row">' + gradeBtn(0,"שוב",entry) + gradeBtn(1,"קשה",entry) + gradeBtn(2,"טוב",entry) + gradeBtn(3,"קל",entry) + '</div>'
+        : '<button type="button" class="add-btn" id="listenReveal">הצג את המילה</button>') +
+      '<button type="button" class="text-btn' + (radioOn ? ' on' : '') + '" id="radioToggle">' +
+        (radioOn ? "עצירת מצב רדיו" : "מצב רדיו — הכל מושמע אוטומטית") + '</button>';
+
+    $("listenPlay").addEventListener("click", function(){ speakWord(entry.en, "female", null); });
+    if(listenRevealed){
+      listenBody.querySelectorAll(".grade-btn").forEach(function(b){
+        b.addEventListener("click", function(){
+          if(radioOn) stopRadio();
+          srsRate(entry, parseInt(b.getAttribute("data-grade"),10));
+          listenIndex++; listenRevealed = false; render(); renderListen();
+        });
+      });
+    } else {
+      $("listenReveal").addEventListener("click", function(){ listenRevealed = true; renderListen(); });
+    }
+    $("radioToggle").addEventListener("click", function(){
+      if(radioOn){ stopRadio(); renderListen(); }
+      else { radioOn = true; radioStep(); }
+    });
+  }
 
   // ---------- Practice mode: Hebrew → English typing ----------
   // Recognising a word is far easier than producing it, so this mode asks for the word itself.
@@ -2255,6 +2759,8 @@
         '<div class="stat-card"><span class="stat-num">' + known + '</span><span class="stat-cap">נלמדו</span></div>' +
         '<div class="stat-card"><span class="stat-num">' + due + '</span><span class="stat-cap">ממתינות לחזרה</span></div>' +
         '<div class="stat-card"><span class="stat-num">' + weekTotal + '</span><span class="stat-cap">חזרות השבוע</span></div>' +
+        '<div class="stat-card"><span class="stat-num">' + leechWords().length + '</span><span class="stat-cap">מילים קשות</span></div>' +
+        '<div class="stat-card"><span class="stat-num">' + Math.round(words.reduce(function(a,w){ return a + (w.interval||0); },0) / Math.max(words.length,1)) + '</span><span class="stat-cap">מרווח ממוצע (ימים)</span></div>' +
       '</div>' +
       '<div class="chart-title">שבעת הימים האחרונים</div>' +
       '<div class="bar-chart">' + bars + '</div>' +
@@ -2320,6 +2826,12 @@
     var wotd = wordOfTheDay();
     $("wotdMenuSub").textContent = wotd ? wotd.en : "";
     $("dailyMenuSub").textContent = dailyCfg.enabled ? ("פעיל · " + dailyCfg.time) : "כבוי";
+    var leeches = leechWords().length;
+    $("leechMenuSub").textContent = leeches ? (leeches + " מילים נשכחות שוב ושוב") : "אין כרגע";
+    var days = daysSinceBackup();
+    menuHint.textContent = (words.length && days >= 30)
+      ? (lastBackup() ? "לא גיבית " + days + " ימים. הרשימה שמורה בדפדפן בלבד." : "עדיין לא גיבית. הרשימה שמורה בדפדפן בלבד.")
+      : "";
   }
 
   $("menuSmart").addEventListener("click", function(){ closeOverlay("menuOverlay"); startSmartReview(); });
