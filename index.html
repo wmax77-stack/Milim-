@@ -266,6 +266,47 @@
   .paste-chip.on{ background:var(--brand); border-color:var(--brand); color:var(--on-brand); }
   .paste-count{ font-family:var(--mono); font-size:10px; opacity:.65; }
 
+  /* ---------- Language gate ---------- */
+  .lang-gate{ position:fixed; inset:0; z-index:400; background:var(--surface); display:none;
+    align-items:center; justify-content:center; padding:24px; }
+  .lang-gate.show{ display:flex; }
+  .lang-inner{ width:100%; max-width:380px; text-align:center; }
+  .lang-mark{ width:84px; height:84px; border-radius:20px; background:var(--brand); margin:0 auto 22px;
+    position:relative; box-shadow:var(--sh-brand); }
+  .lang-mark::before{ content:""; position:absolute; inset:22px 19px 26px 26px; background:rgba(255,255,255,.45); border-radius:7px; }
+  .lang-mark::after{ content:""; position:absolute; inset:28px 26px 20px 19px; background:#fff; border-radius:7px; }
+  .lang-title{ margin:0; font-size:27px; font-weight:800; letter-spacing:-0.03em; }
+  .lang-title span{ display:block; font-size:15px; font-weight:600; color:var(--ink-faint); margin-top:2px; direction:ltr; }
+  .lang-sub{ margin:10px 0 26px; font-size:13.5px; color:var(--ink-soft); }
+  .lang-opt{ width:100%; display:flex; align-items:center; gap:14px; padding:16px; margin-bottom:11px;
+    border:1.5px solid var(--line); border-radius:var(--r); background:var(--surface); cursor:pointer;
+    font-family:inherit; transition:all .15s ease; }
+  .lang-opt:active{ border-color:var(--brand); background:var(--brand-tint); transform:scale(0.99); }
+  .lang-flag{ width:44px; height:44px; border-radius:12px; background:var(--bg); color:var(--brand-deep);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; flex-shrink:0; }
+  .lang-txt{ display:flex; flex-direction:column; gap:3px; text-align:start; }
+  .lang-txt b{ font-size:16.5px; }
+  .lang-txt em{ font-style:normal; font-size:11.5px; color:var(--ink-faint); }
+  .lang-note{ margin-top:20px; font-size:11px; color:var(--ink-faint); line-height:1.6; }
+
+  /* When the app teaches Hebrew, the word is RTL and the meaning is LTR — the mirror image. */
+  :root[data-mode="en"] .word-en, :root[data-mode="en"] .fc-word, :root[data-mode="en"] .detail-word,
+  :root[data-mode="en"] .pron-word, :root[data-mode="en"] .wotd-word, :root[data-mode="en"] .listen-word,
+  :root[data-mode="en"] .leech-en, :root[data-mode="en"] .voice-add-word,
+  :root[data-mode="en"] .word-ex, :root[data-mode="en"] .fc-ex, :root[data-mode="en"] .example-text,
+  :root[data-mode="en"] .cloze-card > span, :root[data-mode="en"] .wotd-ex{ direction:rtl; }
+  :root[data-mode="en"] .word-he, :root[data-mode="en"] .fc-meaning, :root[data-mode="en"] .listen-he,
+  :root[data-mode="en"] .pron-he, :root[data-mode="en"] .wotd-he, :root[data-mode="en"] .leech-he,
+  :root[data-mode="en"] .type-he, :root[data-mode="en"] .cloze-he, :root[data-mode="en"] .fc-note,
+  :root[data-mode="en"] .tr-chip{ direction:ltr; }
+  :root[data-mode="en"] input#wordInput{ direction:rtl; }
+  :root[data-mode="en"] input#meaningInput, :root[data-mode="en"] input#categoryInput,
+  :root[data-mode="en"] .type-input, :root[data-mode="en"] .edit-en-row input,
+  :root[data-mode="en"] .leech-note{ direction:ltr; }
+  :root[data-mode="en"] #editWord{ direction:rtl; }
+  :root[data-mode="en"] textarea{ direction:rtl; }
+  :root[data-mode="en"] .word-idx, :root[data-mode="en"] .quiz-progress{ direction:ltr; }
+
   /* ---------- Menu sections ---------- */
   .menu-section-label{ font-size:11px; font-weight:700; color:var(--ink-faint); letter-spacing:.04em;
     margin:16px 4px 8px; }
@@ -829,6 +870,23 @@
   </div>
 </div>
 
+<div class="lang-gate" id="langGate">
+  <div class="lang-inner">
+    <div class="lang-mark"></div>
+    <h1 class="lang-title">המילון שלי<span>My Words</span></h1>
+    <p class="lang-sub">בחרו שפה · Choose a language</p>
+    <button type="button" class="lang-opt" data-lang="he">
+      <span class="lang-flag">עב</span>
+      <span class="lang-txt"><b>עברית</b><em>ממשק בעברית · ללמוד מילים באנגלית</em></span>
+    </button>
+    <button type="button" class="lang-opt" data-lang="en" dir="ltr">
+      <span class="lang-flag">EN</span>
+      <span class="lang-txt"><b>English</b><em>English interface · learn Hebrew words</em></span>
+    </button>
+    <p class="lang-note">כל שפה שומרת רשימת מילים נפרדת · Each language keeps its own word list</p>
+  </div>
+</div>
+
 <div class="overlay" id="importOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1126,6 +1184,12 @@
       </button>
     </div>
 
+      <button type="button" id="menuLang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18z"/></svg>
+        <span class="menu-text">שפה<em id="langMenuSub"></em></span>
+      </button>
+    </div>
+
     <div class="menu-section-label">מראה</div>
     <div class="seg" id="themeSeg">
       <button type="button" data-theme="auto">לפי המכשיר</button>
@@ -1147,7 +1211,369 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY_V3 = "myWordsApp.words.v3";
+  // ==================== Language layer ====================
+  // The app supports two learning directions. Hebrew UI teaches English; English UI
+  // teaches Hebrew. Each direction keeps its own word list, because they are different
+  // vocabularies — switching languages must never mix or overwrite them.
+  var LANG_KEY = "myWordsApp.lang";
+  var uiLang = (function(){
+    var v = localStorage.getItem(LANG_KEY);
+    return (v === "he" || v === "en") ? v : null;   // null = never chosen, show the picker
+  })();
+
+  var MODES = {
+    he: {
+      ui:"he", dir:"rtl", target:"en", store:"myWordsApp.words.v3",
+      speech:"en-US", speechPrefix:"en", wordDir:"ltr", meaningDir:"rtl",
+      gs:"en", gt:"he", pair:"en|he", wiki:"en.wikipedia.org", lingva:"en/he", tatoeba:"eng",
+      datamuse:true, dictionary:true, wiktionary:"https://en.wiktionary.org/wiki/"
+    },
+    en: {
+      ui:"en", dir:"ltr", target:"he", store:"myWordsApp.words.hebrew.v1",
+      speech:"he-IL", speechPrefix:"he", wordDir:"rtl", meaningDir:"ltr",
+      gs:"he", gt:"en", pair:"he|en", wiki:"he.wikipedia.org", lingva:"he/en", tatoeba:"heb",
+      datamuse:false, dictionary:false, wiktionary:"https://en.wiktionary.org/wiki/"
+    }
+  };
+  var M = MODES[uiLang === "en" ? "en" : "he"];
+
+  // Exact UI strings. Anything not listed stays as-is, so user data is never touched.
+  var UI_EN = {
+    // header & list
+    "המילים שלי":"My Words", "חיפוש מילה":"Search a word", "חיפוש":"Search",
+    "הכל":"All", "בתרגול":"Learning", "נלמדו":"Learned", "כל הקטגוריות":"All categories",
+    "איטי":"Slow", "רגיל":"Normal", "קצב הקראה":"Speech rate", "מיון":"Sort",
+    "חדש קודם":"Newest first", "ישן קודם":"Oldest first", "א-ב (אנגלית)":"A-Z",
+    "לפי שכיחות באנגלית":"By word frequency",
+    "הרשימה עדיין ריקה.":"Your list is empty.",
+    "הוסיפו מילה באנגלית למטה —":"Add a Hebrew word below —",
+    "התרגום, ההגייה והתעתיק מגיעים אוטומטית.":"the translation and example arrive automatically.",
+    "אין מילה שמתאימה לחיפוש.":"No word matches your search.",
+    "אפשר לנקות את החיפוש או לבחור סינון אחר.":"Clear the search or pick another filter.",
+    "סמן כנלמדה":"Mark as learned", "מסומנת כנלמדה":"Marked as learned",
+    "נפוצה מאוד":"Very common", "נפוצה":"Common", "בינונית":"Medium", "נדירה":"Rare", "קשה":"Hard",
+    "עוד":"More", "מצב תרגול":"Practice", "תפריט":"Menu", "עוד אפשרויות":"More options",
+
+    // add form
+    "מילה באנגלית":"Hebrew word", "פירוש בעברית":"English meaning",
+    "פירוש בעברית (לא חובה)":"English meaning (optional)",
+    "קטגוריה":"Category", "קטגוריה (לא חובה)":"Category (optional)",
+    "לדוגמה: apple":"e.g. תפוח", "תפוח":"apple", "אוכל":"food", "מסע":"journey", "נסיעות":"travel",
+    "הוסף/י לרשימה":"Add to list", "הצג/הסתר הוספת מילה":"Show/hide the add form",
+    "▲ הסתר הוספת מילה":"▲ Hide add word", "▼ הצג הוספת מילה":"▼ Show add word",
+    "ייצוא":"Export", "ייבוא":"Import", "הוספה בכמות":"Bulk add",
+    "בודק תרגום בכמה מקורות...":"Checking several sources...",
+    "אפשרויות נוספות:":"Other options:", "מלא/י":"Use it",
+    "✅ התרגום שלך תואם למקורות":"✅ Your translation matches the sources",
+    "לא נמצא תרגום אוטומטי — אפשר לבדוק ידנית:":"No automatic translation — check manually:",
+    "📖 ויקימילון":"📖 Wiktionary", "🔎 מורפיקס":"🔎 Morfix",
+
+    // menu
+    "תרגול":"Practice", "חזרה חכמה":"Smart review", "השלמת משפט":"Fill in the sentence",
+    "המילה החסרה בהקשר אמיתי":"The missing word in a real sentence",
+    "מצב האזנה":"Listening", "כולל מצב רדיו ללא ידיים":"Includes hands-free radio mode",
+    "כרטיסיות":"Flashcards", "כרטיסיות: אנגלית ← עברית":"Flashcards: Hebrew → English",
+    "זיהוי מילים":"Recognition", "כתיבה":"Typing", "כתיבה: עברית ← אנגלית":"Typing: English → Hebrew",
+    "שליפה מהזיכרון":"Recall from memory", "בדיקת הגייה":"Pronunciation check",
+    "אמירת המילה בקול":"Say the word out loud",
+    "תרגול יומי בשעה קבועה":"Daily practice at a set time", "תרגול יומי":"Daily practice",
+    "ההתקדמות שלי":"My progress", "סטטיסטיקה ורצף ימים":"Statistics and streak",
+    "המילים הקשות שלי":"My hard words", "המילים הקשות":"Hard words", "מילת היום":"Word of the day",
+    "הוספת מילים":"Adding words", "הוספה בדיבור":"Add by voice",
+    "אמירת מילה במקום הקלדה":"Speak instead of typing", "הדבקת טקסט":"Paste text",
+    "שליפת המילים שעדיין לא ברשימה":"Pull out the words you don't have yet",
+    "השלמת מידע חסר":"Fill in missing information", "רשימה של מילה = פירוש":"A list of word = meaning",
+    "נתונים":"Data", "ייצוא הרשימה לקובץ גיבוי":"Export the list to a backup file",
+    "ייבוא מקובץ גיבוי":"Import from a backup file", "ייצוא CSV ל-Anki / Quizlet":"Export CSV for Anki / Quizlet",
+    "מעבר לאפליקציה אחרת":"Moving to another app", "שחזור מגיבוי אוטומטי":"Restore from automatic backup",
+    "עזרה ומידע":"Help and information", "מדריך למשתמש":"User guide",
+    "הסבר על כל היכולות":"How everything works", "אודות":"About",
+    "מראה":"Appearance", "לפי המכשיר":"System", "בהיר":"Light", "כהה":"Dark",
+    "שפה":"Language", "שפת הממשק וכיוון הלמידה":"Interface language and learning direction",
+
+    // practice
+    "הצג את הפירוש":"Show the meaning", "הצג את המילה":"Show the word",
+    "הקש/י על הכרטיסייה כדי לראות את הפירוש":"Tap the card to see the meaning",
+    "שמיעת ההגייה":"Hear it", "השמע שוב":"Play again", "השמע את המשפט":"Play the sentence",
+    "שוב":"Again", "טוב":"Good", "קל":"Easy", "דקה":"1 min", "יום":"1 day",
+    "חזרה למילה הקודמת":"Back to the previous word",
+    "(אין פירוש שמור)":"(no meaning saved)",
+    "אין עדיין מילים לתרגול.":"No words to practise yet.",
+    "הוסיפ/י כמה מילים ותחזר/י לכאן 💪":"Add a few words and come back 💪",
+    "🎉 סיימת את כל המילים בתרגול הזה!":"🎉 You finished every word in this round!",
+    "סבב חדש ממילים אחרות":"New round with other words",
+    "סיימת את הסבב 👏":"Round complete 👏", "סבב נוסף":"Another round",
+    "סיימת את הסבב":"Round complete", "נכון":"correct",
+    "בדיקה":"Check", "המילה הבאה":"Next word", "המשפט הבא":"Next sentence", "סיום":"Finish",
+    "לא זוכר/ת — הצג תשובה":"Don't remember — show the answer",
+    "רמז: האות הראשונה":"Hint: first letter", "המילה החסרה":"The missing word",
+    "הקלד/י באנגלית":"Type in Hebrew", "✓ נכון":"✓ Correct",
+    "האזינו ונסו להיזכר במילה":"Listen and try to recall the word",
+    "מצב רדיו — הכל מושמע אוטומטית":"Radio mode — plays automatically",
+    "עצירת מצב רדיו":"Stop radio mode",
+    "לחצו על המיקרופון ואמרו את המילה":"Tap the microphone and say the word",
+    "לחצו על המיקרופון ואמרו מילה באנגלית":"Tap the microphone and say a Hebrew word",
+    "דבר/י":"Speak", "מקשיב...":"Listening...", "✓ ההגייה נשמעה נכון":"✓ That sounded right",
+    "לא הצלחתי לשמוע. נסו שוב.":"I couldn't hear that. Try again.",
+    "אין הרשאה למיקרופון. יש לאשר בהגדרות הדפדפן.":"No microphone permission. Allow it in your browser settings.",
+    "לא ניתן להפעיל את המיקרופון.":"The microphone could not be started.",
+    "הדפדפן הזה לא תומך בזיהוי דיבור.":"This browser does not support speech recognition.",
+    "בספארי או בכרום באייפון זה עובד.":"It works in Safari or Chrome.",
+    "בספארי באייפון זה עובד.":"It works in Safari on iPhone.",
+    "זו המילה הנכונה?":"Is that the right word?",
+    "אפשר להמשיך למילה הבאה":"You can go on to the next word",
+    "המילה כבר ברשימה שלך":"That word is already in your list",
+    "לא הצלחתי לזהות מילה באנגלית. נסו שוב.":"I couldn't recognise a Hebrew word. Try again.",
+    "מוסיף...":"Adding...",
+    "אין עדיין מילים עם משפט דוגמה.":"No words with an example sentence yet.",
+    "המשפטים נשלפים אוטומטית — נסו לפתוח כמה מילים ברשימה.":"Sentences are fetched automatically — try opening a few words.",
+    "כדי לתרגל כתיבה צריך מילים עם פירוש בעברית.":"Typing practice needs words that have a meaning.",
+    "אין מילים לחזרה כרגע 🎉":"Nothing due for review right now 🎉",
+    "לתרגל בכל זאת":"Practise anyway", "הוסיפו מילים כדי להתחיל":"Add words to get started",
+    "אין מילים מתאימות לתרגול":"No suitable words to practise",
+    "התרגול היומי":"Daily practice", "התרגול היומי — שוב":"Daily practice — again",
+    "מילים קשות":"Hard words",
+
+    // word detail
+    "פרטי מילה":"Word details", "🔊 קול אישה":"🔊 Female voice", "🔊 קול גבר":"🔊 Male voice",
+    "הקלט":"Record", "נגן הקלטה":"Play recording",
+    "הקלט/י את עצמך אומר/ת את המילה, כדי להשוות":"Record yourself saying the word, to compare",
+    "מקליט/ה... לחצ/י שוב לעצירה":"Recording... tap again to stop",
+    "ההקלטה מוכנה — לא נשמרת, רק להשוואה כרגע.":"Recording ready — not saved, just for comparison.",
+    "לא ניתנה הרשאה למיקרופון.":"Microphone permission was not granted.",
+    "המכשיר לא תומך בהקלטה בדפדפן הזה.":"This browser does not support recording.",
+    "דוגמה לשימוש":"Example of use", "מחפש משפט לדוגמה...":"Looking for an example sentence...",
+    "מילים קשורות":"Related words", "נרדפות":"Synonyms", "צירופים נפוצים":"Common pairings",
+    "טוען...":"Loading...", "עוגן זיכרון (הערה אישית)":"Memory hook (personal note)",
+    "עוגן זיכרון":"Memory hook", "עוגן זיכרון...":"Memory hook...",
+    "דמיון לעברית, פירוק המילה, משפט משלכם":"A sound-alike, a breakdown, your own sentence",
+    "עריכת האיות באנגלית":"Edit the spelling", "עריכת האיות":"Edit the spelling",
+    "שמירה":"Save", "שמור שינויים":"Save changes", "שמור":"Save",
+    "נלמדה ✓":"Learned ✓", "מחק מילה":"Delete word", "מחיקה":"Delete",
+    "לחצ/י שוב כדי לאשר מחיקה":"Tap again to confirm deletion",
+    "ביטול":"Undo", "המילה הוחזרה":"Word restored", "העוגן נשמר":"Note saved",
+    "יש תווים לא תקינים בשדה":"There are invalid characters in a field",
+
+    // daily
+    "להזכיר לי כל יום":"Remind me every day",
+    "תזכורת מופיעה כשפותחים את האפליקציה אחרי השעה שנקבעה":"The reminder appears when you open the app after that time",
+    "שעה":"Time", "כמה מילים בכל תרגול":"How many words per session",
+    "אילו מילים לבחור":"Which words to pick",
+    "לפי חזרה מרווחת (מומלץ)":"By spaced repetition (recommended)",
+    "מילים שעדיין בתרגול":"Words still being learned",
+    "המילים הוותיקות ביותר":"The oldest words", "המילים שנוספו לאחרונה":"The most recently added",
+    "אקראי מכל הרשימה":"Random from the whole list", "מקטגוריה מסוימת":"From a specific category",
+    "אין עדיין קטגוריות":"No categories yet",
+    "להתחיל תרגול עכשיו":"Start a session now",
+    "זמן לתרגול היומי":"Time for your daily practice", "התחל":"Start", "לא עכשיו":"Not now",
+    "התזכורת כבויה כרגע.":"The reminder is off.", "התזכורת כובתה":"Reminder turned off",
+
+    // stats
+    "ימים ברצף":"day streak", "יום ברצף":"day streak",
+    "תרגול או הוספת מילה היום יתחילו רצף חדש":"Practising or adding a word today starts a new streak",
+    "מילים ברשימה":"words in list", "ממתינות לחזרה":"due for review",
+    "חזרות השבוע":"reviews this week", "מרווח ממוצע (ימים)":"average interval (days)",
+    "מרווח ממוצע":"Average interval", "שבעת הימים האחרונים":"The last seven days",
+    "אין מילים לחזרה כרגע":"Nothing is due right now",
+    "אין כרגע מילים בעייתיות 👌":"No problem words right now 👌",
+    "הוסיפו מילים כדי לקבל מילת היום.":"Add words to get a word of the day.",
+    "רצף ימים":"Day streak", "רצף נוכחי":"Current streak", "מתוכן נלמדו":"of them learned",
+    "פותח על ידי":"Created by", "ייצוא אחרון":"Last export", "טרם בוצע":"never",
+    "מקורות המידע":"Data sources",
+    "איטי / רגיל":"Slow / Normal", "הכל / בתרגול / נלמדו":"All / Learning / Learned",
+    "המילה החסרה":"The missing word", "הקלד/י באנגלית":"Type in Hebrew",
+    "הקלדה":"Typing", "דיבור":"Voice", "גיבוי אוטומטי":"Automatic backup",
+    "ייצוא CSV":"Export CSV", "ייצוא JSON":"Export JSON",
+    "אין הגייה":"No speech", "אין הצעת תרגום":"No translation suggestion",
+    "המיקרופון לא עובד":"The microphone doesn't work", "הרשימה נעלמה":"The list disappeared",
+    "חסרים משפטי דוגמה":"Missing example sentences",
+    "\"אין מילים לחזרה\"":"\u201cNothing due for review\u201d",
+    "פירוש בעברית":"English meaning",
+    "apple, תפוח, אוכל\nhouse, בית\nrun":"\u05d1\u05d9\u05ea, house, basics\n\u05e1\u05e4\u05e8, book\n\u05dc\u05e8\u05d5\u05e5", "מילים בגיבוי":"words in backup", "מילים כרגע":"words right now",
+    "שחזור המילים החסרות":"Restore the missing words",
+    "הגיבוי הזה נמצא בדפדפן. לגיבוי אמיתי השתמשו בייצוא לקובץ.":"This backup lives in the browser. For a real backup, export to a file.",
+    "עדיין אין גיבוי אוטומטי.":"No automatic backup yet.",
+    "הוא נוצר אוטומטית פעם ביום.":"It is created once a day.",
+    "לא היו מילים חסרות":"No words were missing",
+
+    // bulk / paste / backfill / import
+    "הוספת מילים בכמות":"Bulk add", "שורה אחת לכל מילה. אפשר:":"One line per word. Formats:",
+    ", או":", or", ", שורה לכל מילה.":", one per line.",
+    "word = פירוש":"word = meaning", "word, פירוש":"word, meaning",
+    "word, פירוש, קטגוריה":"word, meaning, category",
+    "הוסף/י את כולן":"Add them all",
+    "הדביקו כאן פסקה, כתבה או מילות שיר באנגלית":"Paste a paragraph, article or lyrics in Hebrew",
+    "האפליקציה תסנן מילים נפוצות ומילים שכבר יש לך, ותציע רק את החדשות.":"Common words and words you already have are filtered out.",
+    "נתח את הטקסט":"Analyse the text", "בחירת הכל":"Select all", "ניקוי הבחירה":"Clear selection",
+    "בחרו מילים להוספה":"Choose words to add",
+    "לא נמצאו מילים חדשות בטקסט הזה.":"No new words found in this text.",
+    "בלי משפט דוגמה":"without an example", "חסר להן מידע כלשהו":"missing some information",
+    "לכל המילים יש כבר משפט, תעתיק ושכיחות 👌":"Every word already has what it needs 👌",
+    "אין עדיין מילים ברשימה.":"No words in the list yet.",
+    "כל מילה נבדקת בכמה מקורות, כשנייה עד שתיים למילה. אפשר לעצור באמצע — מה שהושלם כבר נשמר.":"Each word is checked against several sources, a second or two per word. You can stop midway — whatever finished is saved.",
+    "למילים מסוימות פשוט אין משפט מתאים באף מקור, והן יישארו בלי.":"Some words simply have no suitable sentence in any source.",
+    "עצירה":"Stop", "ייבוא קובץ":"Import a file",
+    "מילים חדשות":"new words", "תרגומים שונים":"different translations",
+    "משפטי דוגמה חדשים":"new example sentences", "שדות נוספים":"other fields",
+    "הקובץ זהה למה שכבר יש לך.":"The file matches what you already have.",
+    "אין מה לעדכן.":"Nothing to update.",
+    "העדכון לא נוגע בהתקדמות שלך: המרווחים, הרמות והרצף נשמרים כפי שהם.":"Your progress is untouched: intervals, levels and streak stay as they are.",
+    "שדה ריק בקובץ לא ימחק מידע קיים.":"An empty field in the file will not erase existing data.",
+    "הקובץ לא תקין. יש לייבא קובץ שיוצא מהאפליקציה הזו.":"That file is not valid. Import a file exported from this app.",
+    "אין מילים לייצוא":"No words to export",
+    "המילים האלה נשכחו שוב ושוב. חזרה נוספת כנראה לא תעזור — שווה לכתוב לכל אחת עוגן זיכרון אישי: דמיון לעברית, פירוק המילה, או משפט משלכם.":"These words keep being forgotten. Another repetition probably won't help — write a personal memory hook for each: a sound-alike, a breakdown of the word, or your own sentence."
+  };
+
+  // Strings built at runtime from numbers and names.
+  var UI_PATTERNS = [
+    [/^(\d+) מתוך (\d+) נלמדו$/, "$1 of $2 learned"],
+    [/^כל (\d+) המילים נלמדו 🎯$/, "All $1 words learned 🎯"],
+    [/^(\d+) מילים מחכות לחזרה$/, "$1 words due for review"],
+    [/^הכל מעודכן כרגע$/, "All caught up"],
+    [/^(\d+) ימים ברצף$/, "$1 day streak"],
+    [/^(\d+) מילים · (\d{4}-\d{2}-\d{2})$/, "$1 words · $2"],
+    [/^(\d+) מילים חסר להן מידע$/, "$1 words are missing information"],
+    [/^הכל מושלם$/, "Everything is complete"],
+    [/^(\d+) מילים נשכחות שוב ושוב$/, "$1 words keep being forgotten"],
+    [/^אין כרגע$/, "None right now"],
+    [/^אין גיבוי עדיין$/, "No backup yet"],
+    [/^גרסה (\S+) · (.+)$/, "Version $1 · $2"],
+    [/^פעיל · (\d{2}:\d{2})$/, "On · $1"],
+    [/^כבוי$/, "Off"],
+    [/^(\d+) מילים · נקבע ל-(\d{2}:\d{2})$/, "$1 words · set for $2"],
+    [/^מוכן: (\d+) מילים כל יום ב-(\d{2}:\d{2})\.$/, "Ready: $1 words every day at $2."],
+    [/^מוכן: (\d+) מילים כל יום ב-(\d{2}:\d{2})\. התרגול של היום כבר בוצע ✓ \(אפשר לחזור עליו למטה\)$/,
+      "Ready: $1 words every day at $2. Today's session is done ✓ (you can repeat it below)"],
+    [/^לחזור על אותן (\d+) המילים של התרגול האחרון$/, "Repeat the same $1 words from the last session"],
+    [/^לחזור על אותן (\d+) מילים$/, "Repeat the same $1 words"],
+    [/^להשלים (\d+) מילים$/, "Complete $1 words"],
+    [/^לתרגל את (\d+) המילים האלה$/, "Practise these $1 words"],
+    [/^לחזור על (\d+) מילים עכשיו$/, "Review $1 words now"],
+    [/^(\d+) שכחות$/, "$1 lapses"],
+    [/^(\d+) ימים$/, "$1 days"],
+    [/^(\d+) חודשים$/, "$1 months"],
+    [/^שנה$/, "1 year"],
+    [/^השיא שלך: (\d+) ימים$/, "Your best: $1 days"],
+    [/^(\d+) מילים חדשות · בחרו מה להוסיף$/, "$1 new words · choose what to add"],
+    [/^הוספת (\d+) מילים עם תרגום$/, "Add $1 words with translations"],
+    [/^מתרגם (\d+) מתוך (\d+)\.\.\.$/, "Translating $1 of $2..."],
+    [/^נוספו (\d+) מילים$/, "Added $1 words"],
+    [/^בודק את (.+) \((\d+) מתוך (\d+)\)$/, "Checking $1 ($2 of $3)"],
+    [/^הושלמו (\d+) משפטים חדשים$/, "Completed $1 new sentences"],
+    [/^נעצר — נוספו (\d+) משפטים$/, "Stopped — added $1 sentences"],
+    [/^הוספה ועדכון \((\d+) מילים\)$/, "Add and update ($1 words)"],
+    [/^להוסיף רק את (\d+) החדשות$/, "Add only the $1 new ones"],
+    [/^נוספו (\d+) · עודכנו (\d+)$/, "Added $1 · updated $2"],
+    [/^שוחזרו (\d+) מילים$/, "Restored $1 words"],
+    [/^הגיבוי נשמר בתאריך (\S+)\. השחזור מוסיף מילים חסרות בלבד — מילים קיימות לא ידרסו\.$/,
+      "The backup was taken on $1. Restoring only adds missing words — existing ones are not overwritten."],
+    [/^מילה נכנסת לכאן אחרי (\d+) שכחות\.$/, "A word lands here after $1 lapses."],
+    [/^השמע הגייה של (.+)$/, "Play $1"],
+    [/^נמחקה: (.+)$/, "Deleted: $1"],
+    [/^נוספה: (.+)$/, "Added: $1"],
+    [/^הוספת "(.+)"$/, "Add \u201c$1\u201d"],
+    [/^המילה "(.+)" כבר קיימת ברשימה$/, "\u201c$1\u201d is already in your list"],
+    [/^נקבע תרגול יומי ב-(\d{2}:\d{2})$/, "Daily practice set for $1"],
+    [/^סיימת את הסבב$/, "Round complete"],
+    [/^(\d+) מתוך (\d+)$/, "$1 of $2"],
+    [/^החזרה הבאה (.+)$/, "Next review $1"],
+    [/^ — הבאה (.+)$/, " — next $1"],
+    [/^מחר$/, "tomorrow"],
+    [/^עכשיו$/, "now"],
+    [/^בעוד (\d+) ימים$/, "in $1 days"],
+    [/^🎉 הגעת ל-(\d+) מילים!$/, "🎉 You reached $1 words!"],
+    [/^(\d+) שורות בקובץ לא נקראו \(מילה באנגלית חסרה או לא תקינה\)\.$/, "$1 rows could not be read (missing or invalid word)."],
+    [/^(\d+) פירושים הכילו תווים שאינם נתמכים ולא נשמרו\.$/, "$1 meanings contained unsupported characters and were not saved."],
+    [/^לא גיבית (\d+) ימים\. הרשימה שמורה בדפדפן בלבד\.$/, "No export for $1 days. The list lives only in this browser."],
+    [/^עדיין לא גיבית\. הרשימה שמורה בדפדפן בלבד\.$/, "You have never exported. The list lives only in this browser."],
+    [/^קובץ CSV ירד — מוכן ל-Anki או Quizlet$/, "CSV downloaded — ready for Anki or Quizlet"],
+    [/^האיות עודכן — מחפש תעתיק ומשפט$/, "Spelling updated — looking up a sentence"],
+    [/^נוספו (\d+) מילים, דולגו (\d+) \(כפולות או לא תקינות\)\.$/, "Added $1, skipped $2 (duplicates or invalid)."],
+    [/^נוספו (\d+) מילים\.$/, "Added $1 words."],
+    [/^הדפדפן הזה לא תומך בהקראה קולית$/, "This browser does not support speech"]
+  ];
+
+  var HEB_DAYS = { "א":"Su", "ב":"Mo", "ג":"Tu", "ד":"We", "ה":"Th", "ו":"Fr", "ש":"Sa" };
+
+  function translateString(raw){
+    var t = String(raw).trim();
+    if(!t) return raw;
+    if(Object.prototype.hasOwnProperty.call(UI_EN, t)) return raw.replace(t, UI_EN[t]);
+    if(Object.prototype.hasOwnProperty.call(HEB_DAYS, t) && t.length === 1) return HEB_DAYS[t];
+    for(var i = 0; i < UI_PATTERNS.length; i++){
+      if(UI_PATTERNS[i][0].test(t)) return raw.replace(t, t.replace(UI_PATTERNS[i][0], UI_PATTERNS[i][1]));
+    }
+    return raw;
+  }
+
+  var translating = false;
+  function translateTree(root){
+    if(uiLang !== "en" || !root) return;
+    translating = true;
+    try{
+      var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: function(n){
+          var p = n.parentElement;
+          if(!p || p.closest("script,style")) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var n, pending = [];
+      while((n = walker.nextNode())) pending.push(n);
+      pending.forEach(function(node){
+        var out = translateString(node.nodeValue);
+        if(out !== node.nodeValue) node.nodeValue = out;
+      });
+      var targets = [];
+      if(root.nodeType === 1) targets.push(root);                       // the node itself, not just its children
+      if(root.querySelectorAll) targets = targets.concat([].slice.call(root.querySelectorAll("[placeholder],[aria-label],[title]")));
+      targets.forEach(function(el){
+        ["placeholder","aria-label","title"].forEach(function(attr){
+          var v = el.getAttribute && el.getAttribute(attr);
+          if(!v) return;
+          var out = translateString(v);
+          if(out !== v) el.setAttribute(attr, out);
+        });
+      });
+    } finally { translating = false; }
+  }
+
+  // Screens are built at render time, so new nodes have to be caught as they appear.
+  function startTranslationObserver(){
+    if(uiLang !== "en" || !("MutationObserver" in window)) return;
+    var obs = new MutationObserver(function(records){
+      if(translating) return;
+      records.forEach(function(r){
+        if(r.type === "characterData" && r.target.parentElement){
+          var out = translateString(r.target.nodeValue);
+          if(out !== r.target.nodeValue){ translating = true; r.target.nodeValue = out; translating = false; }
+        }
+        r.addedNodes && r.addedNodes.forEach(function(node){
+          if(node.nodeType === 3){
+            var out = translateString(node.nodeValue);
+            if(out !== node.nodeValue){ translating = true; node.nodeValue = out; translating = false; }
+          } else if(node.nodeType === 1){
+            translateTree(node);
+          }
+        });
+      });
+    });
+    obs.observe(document.body, { childList:true, subtree:true, characterData:true });
+  }
+
+  function applyLanguage(){
+    document.documentElement.setAttribute("lang", M.ui);
+    document.documentElement.setAttribute("dir", M.dir);
+    document.documentElement.setAttribute("data-mode", M.ui);
+    if(uiLang === "en"){
+      document.title = "My Words";
+      translateTree(document.body);
+      startTranslationObserver();
+    }
+  }
+
+
+  var STORAGE_KEY_V3 = M.store;
   var STORAGE_KEY_V2 = "myWordsApp.words.v2";
   var STORAGE_KEY_V1 = "myWordsApp.words.v1";
 
@@ -1162,6 +1588,21 @@
   var VALID_ENGLISH = /^[A-Za-z][A-Za-z '\-]{0,39}$/;
   var VALID_HEBREW = /^[\u0590-\u05FF0-9A-Za-z ,;:'"\-.!?()\/״׳]{0,90}$/;
   var VALID_CATEGORY = /^[A-Za-z\u0590-\u05FF0-9 \-]{0,20}$/;
+  var VALID_HEBREW_WORD = /^[\u0590-\u05FF][\u0590-\u05FF\u0591-\u05C7 '"\u05be\-]{0,39}$/;
+  var VALID_ENGLISH_MEANING = /^[A-Za-z0-9 ,;:'"\-.!?()\/]{0,90}$/;
+
+  function sanitizeHebrewWord(raw){
+    var w = String(raw||"").trim().replace(/\s+/g," ");
+    return VALID_HEBREW_WORD.test(w) ? w : null;
+  }
+  function sanitizeEnglishMeaning(raw){
+    var w = String(raw||"").trim().replace(/\s+/g," ");
+    if(w === "") return "";
+    return VALID_ENGLISH_MEANING.test(w) ? w : null;
+  }
+  // The word field holds the language being learned; the meaning field holds the user's own.
+  function sanitizeWord(raw){ return M.target === "en" ? sanitizeEnglish(raw) : sanitizeHebrewWord(raw); }
+  function sanitizeMeaning(raw){ return M.target === "en" ? sanitizeHebrew(raw) : sanitizeEnglishMeaning(raw); }
 
   function sanitizeEnglish(raw){ var w = String(raw||"").trim().replace(/\s+/g," "); return VALID_ENGLISH.test(w) ? w : null; }
   function sanitizeHebrew(raw){ var w = String(raw||"").trim().replace(/\s+/g," "); if(w==="") return ""; return VALID_HEBREW.test(w) ? w : null; }
@@ -1172,9 +1613,9 @@
   // ---------- Storage ----------
   function normalizeEntry(e){
     if(!e || typeof e !== "object") return null;
-    var en = sanitizeEnglish(e.en);
+    var en = sanitizeWord(e.en);
     if(!en) return null;
-    var he = sanitizeHebrew(e.he || ""); if(he === null) he = "";
+    var he = sanitizeMeaning(e.he || ""); if(he === null) he = "";
     var category = sanitizeCategory(e.category || ""); if(category === null) category = "";
     var phonetic = typeof e.phonetic === "string" ? e.phonetic.slice(0,40) : "";
     var example = typeof e.example === "string" ? e.example.slice(0,140) : "";
@@ -1203,6 +1644,7 @@
         if(!Array.isArray(parsed)) return [];
         return parsed.map(normalizeEntry).filter(Boolean).slice(0,1000);
       }
+      if(M.target !== "en") return [];   // the older formats only ever held English words
       var raw2 = localStorage.getItem(STORAGE_KEY_V2);
       if(raw2){
         var arr2 = JSON.parse(raw2);
@@ -1324,10 +1766,26 @@
     return new RegExp("\\b(?:" + alts + ")\\b", "i");
   }
 
-  // True if the sentence uses the word in any form: inflected, or an irregular form of it.
+  // Hebrew glues ו/ה/ב/כ/ל/מ/ש onto the front of a word, so a sentence may show
+  // "בבית" for "בית". Nikud is stripped from both sides before comparing.
+  function stripNikud(s){ return String(s||"").replace(/[\u0591-\u05C7]/g, ""); }
+  function hebrewWordRegex(word){
+    var w = stripNikud(word).replace(/[^\u0590-\u05FF]/g, "");
+    if(w.length < 2) return null;
+    return new RegExp("(?:^|[\\s\u05be.,!?;:\"'()\\-])[\u05d5\u05d4\u05d1\u05db\u05dc\u05de\u05e9]{0,2}" + w + "(?:[\u05d9\u05dd\u05d5\u05ea\u05d4]{0,2})(?=$|[\\s\u05be.,!?;:\"'()\\-])");
+  }
+  function targetWordRegex(word){
+    return M.target === "en" ? wordRegex(word) : hebrewWordRegex(word);
+  }
+
+  // True if the sentence uses the word in any form.
   function sentenceContainsWord(sentence, word){
-    if(!wordForms(word).length) return false;
-    return wordRegex(word).test(String(sentence).toLowerCase());
+    if(M.target === "en"){
+      if(!wordForms(word).length) return false;
+      return wordRegex(word).test(String(sentence).toLowerCase());
+    }
+    var re = hebrewWordRegex(word);
+    return re ? re.test(stripNikud(sentence)) : false;
   }
 
   function cleanExample(raw, word){
@@ -1337,7 +1795,7 @@
     if(!/^[A-Za-z0-9"'(]/.test(t)) return "";                    // must start like an English sentence
     if(/[\u0590-\u05FF\u0600-\u06FF\u4E00-\u9FFF]/.test(t)) return ""; // not English
     if(!sentenceContainsWord(t, word)) return "";
-    t = t.charAt(0).toUpperCase() + t.slice(1);
+    if(M.target === "en") t = t.charAt(0).toUpperCase() + t.slice(1);
     if(!/[.!?]$/.test(t)) t += ".";
     return t;
   }
@@ -1370,7 +1828,7 @@
 
   // Tatoeba: a corpus of real sentences, used when the dictionary has no example of its own.
   async function fetchTatoebaExample(word){
-    var data = await fetchJSONQuick("https://tatoeba.org/en/api_v0/search?from=eng&query=" + encodeURIComponent(word) + "&limit=6&sort=words");
+    var data = await fetchJSONQuick("https://tatoeba.org/en/api_v0/search?from=" + M.tatoeba + "&query=" + encodeURIComponent(word) + "&limit=6&sort=words");
     var results = data && (data.results || data.data);
     if(!Array.isArray(results)) return "";
     for(var i=0;i<results.length;i++){
@@ -1381,7 +1839,8 @@
   }
 
   async function fetchWordInfo(word){
-    var info = await fetchDictionaryInfo(word);
+    // The dictionary API (and its phonetic transcription) only covers English.
+    var info = M.dictionary ? await fetchDictionaryInfo(word) : { phonetic:"", example:"" };
     if(!info.example) info.example = await fetchTatoebaExample(word);
     return info;
   }
@@ -1410,9 +1869,9 @@
 
   function scoreVoice(v, gender){
     var n = v.name.toLowerCase();
-    var score = /^en/i.test(v.lang) ? 100 : 0;
+    var score = new RegExp("^" + M.speechPrefix, "i").test(v.lang) ? 100 : 0;
     if(n.indexOf("enhanced") !== -1 || n.indexOf("premium") !== -1) score += 60;
-    var femaleNames = ["samantha","ava","allison","susan","victoria","karen","serena","kate","moira","tessa","fiona","zoe","joanna","salli","zira","siri female","female"];
+    var femaleNames = ["samantha","ava","allison","susan","victoria","karen","serena","kate","moira","tessa","fiona","zoe","joanna","salli","zira","carmit","siri female","female"];
     var maleNames = ["male","daniel","alex","fred","aaron","arthur","oliver","gordon","tom","david","siri male"];
     var wantNames = gender === "male" ? maleNames : femaleNames;
     var avoidNames = gender === "male" ? femaleNames : maleNames;
@@ -1449,8 +1908,8 @@
       var utter = new SpeechSynthesisUtterance(text);
       var voice = (gender === "male") ? (cachedMale || cachedFemale) : (cachedFemale || cachedMale);
       // Assign the voice first: some engines reset rate/pitch when the voice changes.
-      if(voice){ utter.voice = voice; utter.lang = voice.lang || "en-US"; }
-      else { utter.lang = "en-US"; }
+      if(voice){ utter.voice = voice; utter.lang = voice.lang || M.speech; }
+      else { utter.lang = M.speech; }
       utter.rate = speechRate;
       utter.pitch = 1.0;
       utter.volume = 1.0;
@@ -1631,7 +2090,7 @@
 
   // ---------- Add word flow ----------
   function currentValidation(){
-    return { en: sanitizeEnglish(input.value), he: sanitizeHebrew(meaningInput.value), category: sanitizeCategory(categoryInput.value) };
+    return { en: sanitizeWord(input.value), he: sanitizeMeaning(meaningInput.value), category: sanitizeCategory(categoryInput.value) };
   }
   function updateAddButton(){
     var v = currentValidation();
@@ -1650,6 +2109,7 @@
   function hideSuggestions(){ suggestList.classList.remove("open"); suggestList.innerHTML = ""; }
 
   async function fetchSuggestions(prefix){
+    if(!M.datamuse) return [];       // autocomplete only exists for English
     if(!("fetch" in window)) return [];
     if(suggestController) suggestController.abort();
     suggestController = ("AbortController" in window) ? new AbortController() : null;
@@ -1705,13 +2165,22 @@
   // Plus outgoing links to Wiktionary and Morfix for human verification.
   // Advisory only — it suggests, it never blocks saving, since one English word can have several correct Hebrew translations.
   function isHebrewText(s){ return /[\u0590-\u05FF]/.test(s); }
-  function normalizeHebrew(s){ return String(s||"").replace(/[\u0591-\u05C7]/g,"").replace(/[^\u0590-\u05FF]/g,"").trim(); }
+  function isLatinText(s){ return /[A-Za-z]/.test(s); }
+  // The meaning is written in the user's own language, which flips with the mode.
+  function isMeaningText(s){ return M.target === "en" ? isHebrewText(s) : isLatinText(s); }
+  function normalizeHebrew(s){
+    if(M.target === "en") return String(s||"").replace(/[\u0591-\u05C7]/g,"").replace(/[^\u0590-\u05FF]/g,"").trim();
+    return String(s||"").toLowerCase().replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
+  }
   function cleanHe(s){
     var t = String(s||"").trim().replace(/\s+/g," ").slice(0,60);
-    return isHebrewText(t) ? t : "";
+    return isMeaningText(t) ? t : "";
   }
-  var POS_HE = { noun:"שם עצם", verb:"פועל", adjective:"שם תואר", adverb:"תואר הפועל",
-                 preposition:"מילת יחס", pronoun:"כינוי", conjunction:"מילת חיבור", interjection:"מילת קריאה" };
+  var POS_HE = (M.ui === "en")
+    ? { noun:"noun", verb:"verb", adjective:"adjective", adverb:"adverb",
+        preposition:"preposition", pronoun:"pronoun", conjunction:"conjunction", interjection:"interjection" }
+    : { noun:"שם עצם", verb:"פועל", adjective:"שם תואר", adverb:"תואר הפועל",
+        preposition:"מילת יחס", pronoun:"כינוי", conjunction:"מילת חיבור", interjection:"מילת קריאה" };
 
   function fetchJSON(url, ms){
     if(!("fetch" in window)) return Promise.resolve(null);
@@ -1723,7 +2192,7 @@
   }
 
   async function srcGoogle(word){
-    var data = await fetchJSON("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=he&dt=t&dt=bd&q=" + encodeURIComponent(word));
+    var data = await fetchJSON("https://translate.googleapis.com/translate_a/single?client=gtx&sl=" + M.gs + "&tl=" + M.gt + "&dt=t&dt=bd&q=" + encodeURIComponent(word));
     if(!data) return null;
     var main = cleanHe(data[0] && data[0][0] && data[0][0][0]);
     var alts = [];
@@ -1739,7 +2208,7 @@
   }
 
   async function srcMyMemory(word){
-    var data = await fetchJSON("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(word) + "&langpair=en|he");
+    var data = await fetchJSON("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(word) + "&langpair=" + M.pair);
     if(!data) return null;
     var main = cleanHe(data.responseData && data.responseData.translatedText);
     var alts = [];
@@ -1756,7 +2225,7 @@
   }
 
   async function srcWikipedia(word){
-    var data = await fetchJSON("https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&redirects=1&prop=langlinks&lllang=he&titles=" + encodeURIComponent(word));
+    var data = await fetchJSON("https://" + M.wiki + "/w/api.php?action=query&format=json&origin=*&redirects=1&prop=langlinks&lllang=" + M.gt + "&titles=" + encodeURIComponent(word));
     var pages = data && data.query && data.query.pages;
     if(!pages) return null;
     var main = "";
@@ -1767,11 +2236,11 @@
         if(t && t.indexOf("(") === -1) main = t;
       }
     });
-    return main ? { source:"ויקיפדיה", main:main, alts:[], weight:1 } : null;
+    return main ? { source: (M.ui === "en" ? "Wikipedia" : "ויקיפדיה"), main:main, alts:[], weight:1 } : null;
   }
 
   async function srcLingva(word){
-    var data = await fetchJSON("https://lingva.ml/api/v1/en/he/" + encodeURIComponent(word));
+    var data = await fetchJSON("https://lingva.ml/api/v1/" + M.lingva + "/" + encodeURIComponent(word));
     var main = cleanHe(data && data.translation);
     return main ? { source:"Lingva", main:main, alts:[], weight:2 } : null;
   }
@@ -1832,11 +2301,11 @@
     var wrap = document.createElement("div");
     wrap.className = "tr-links";
     var wik = document.createElement("a");
-    wik.href = "https://en.wiktionary.org/wiki/" + encodeURIComponent(en) + "#Translations";
+    wik.href = "https://en.wiktionary.org/wiki/" + encodeURIComponent(en) + (M.target === "en" ? "#Translations" : "");
     wik.target = "_blank"; wik.rel = "noopener noreferrer";
     wik.textContent = "📖 ויקימילון";
     var mor = document.createElement("a");
-    mor.href = "https://www.morfix.co.il/" + encodeURIComponent(en);
+    mor.href = (M.target === "en" ? "https://www.morfix.co.il/" : "https://www.morfix.co.il/en/") + encodeURIComponent(en);
     mor.target = "_blank"; mor.rel = "noopener noreferrer";
     mor.textContent = "🔎 מורפיקס";
     wrap.appendChild(wik); wrap.appendChild(mor);
@@ -1903,7 +2372,9 @@
     if(agrees > 1){
       var agreeBadge = document.createElement("span");
       agreeBadge.className = "tr-src agree";
-      agreeBadge.textContent = "✓ " + agrees + " מקורות מסכימים";
+      agreeBadge.textContent = (M.ui === "en")
+        ? ("✓ " + agrees + " sources agree")
+        : ("✓ " + agrees + " מקורות מסכימים");
       srcRow.appendChild(agreeBadge);
     }
     res.best.sources.forEach(function(name){
@@ -1959,7 +2430,7 @@
     return check;
   }
 
-  var checkAddTranslation = wireTranslateHint($("translateHint"), meaningInput, function(){ return sanitizeEnglish(input.value); }, updateAddButton);
+  var checkAddTranslation = wireTranslateHint($("translateHint"), meaningInput, function(){ return sanitizeWord(input.value); }, updateAddButton);
   input.addEventListener("blur", function(){ setTimeout(checkAddTranslation, 200); });
   meaningInput.addEventListener("blur", checkAddTranslation);
 
@@ -2152,7 +2623,7 @@
   $("editWordSave").addEventListener("click", async function(){
     var entry = words.find(function(w){ return w.id === detailWordId; });
     if(!entry) return;
-    var en = sanitizeEnglish($("editWord").value);
+    var en = sanitizeWord($("editWord").value);
     if(!en){ showToast("במילה באנגלית אפשר אותיות, רווח, מקף וגרש בלבד"); return; }
     if(en.toLowerCase() === entry.en.toLowerCase()){ $("editWordRow").classList.remove("open"); return; }
     var clash = words.some(function(w){ return w.id !== entry.id && w.en.toLowerCase() === en.toLowerCase(); });
@@ -2182,7 +2653,7 @@
   $("saveDetailBtn").addEventListener("click", function(){
     var entry = words.find(function(w){ return w.id === detailWordId; });
     if(!entry) return;
-    var he = sanitizeHebrew($("editMeaning").value);
+    var he = sanitizeMeaning($("editMeaning").value);
     var category = sanitizeCategory($("editCategory").value);
     if(he === null || category === null){ showToast("יש תווים לא תקינים בשדה"); return; }
     entry.he = he; entry.category = category;
@@ -2493,8 +2964,8 @@
     var added = 0, skipped = 0;
     for(var i=0;i<lines.length;i++){
       var parts = lines[i].split(",").map(function(p){ return p.trim(); });
-      var en = sanitizeEnglish(parts[0]);
-      var he = sanitizeHebrew(parts[1] || "");
+      var en = sanitizeWord(parts[0]);
+      var he = sanitizeMeaning(parts[1] || "");
       var category = sanitizeCategory(parts[2] || "");
       if(!en || he === null || category === null){ skipped++; continue; }
       var exists = words.some(function(w){ return w.en.toLowerCase() === en.toLowerCase(); });
@@ -2793,6 +3264,7 @@
   // Datamuse reports how common a word is (occurrences per million). Learning frequent
   // words first is the highest-value ordering there is.
   async function fetchFrequency(word){
+    if(!M.datamuse) return -1;
     var data = await fetchJSONQuick("https://api.datamuse.com/words?sp=" + encodeURIComponent(word.toLowerCase()) + "&md=f&max=1");
     if(!Array.isArray(data) || !data[0] || !Array.isArray(data[0].tags)) return -1;
     var tag = data[0].tags.find(function(t){ return t.indexOf("f:") === 0; });
@@ -2811,6 +3283,7 @@
   // and a word with neighbours is much easier to hold onto than an isolated one.
   var relatedCache = {};
   async function fetchRelated(word){
+    if(!M.datamuse) return { synonyms:[], collocations:[] };
     var key = word.toLowerCase();
     if(relatedCache[key]) return relatedCache[key];
     var pair = await Promise.all([
@@ -2884,11 +3357,17 @@
 
   function clozeParts(entry){
     // Find the word in whatever form the sentence uses: runs, running, or took for take.
-    var stem = entry.en.toLowerCase().replace(/[^a-z]/g, "");
-    if(stem.length < 2) return null;
-    var m = entry.example.match(wordRegex(entry.en));
+    var re = targetWordRegex(entry.en);
+    if(!re) return null;
+    var m = entry.example.match(re);
     if(!m) return null;
-    return { before: entry.example.slice(0, m.index), hidden: m[0], after: entry.example.slice(m.index + m[0].length) };
+    // The Hebrew pattern may capture a leading space or prefix letter; trim it off the gap.
+    var hidden = m[0], offset = m.index;
+    if(M.target !== "en"){
+      var lead = hidden.match(/^[\s\u05be.,!?;:"\'()\-]/);
+      if(lead){ hidden = hidden.slice(1); offset += 1; }
+    }
+    return { before: entry.example.slice(0, offset), hidden: hidden, after: entry.example.slice(offset + hidden.length) };
   }
 
   function startCloze(){
@@ -2992,7 +3471,7 @@
     radioTimer = setTimeout(function(){
       if(!radioOn) return;
       listenRevealed = true; renderListen();
-      if(entry.he) speakText(entry.he, "female", null);
+      if(entry.he) speakText(entry.he, "female", null);   // meaning, read with whatever voice is available
       radioTimer = setTimeout(function(){
         if(!radioOn) return;
         listenIndex++;
@@ -3050,6 +3529,14 @@
   var typeBody = $("typeBody");
 
   function normalizeAnswer(s){
+    if(M.target !== "en"){
+      // Nikud, punctuation and final letter forms shouldn't decide a right answer.
+      return stripNikud(String(s || ""))
+        .replace(/[^\u0590-\u05FF ]/g, "")
+        .replace(/\u05dd/g,"\u05de").replace(/\u05df/g,"\u05e0").replace(/\u05e3/g,"\u05e4")
+        .replace(/\u05e5/g,"\u05e6").replace(/\u05da/g,"\u05db")
+        .replace(/\s+/g, " ").trim();
+    }
     return String(s || "").toLowerCase().trim()
       .replace(/^(to|a|an|the)\s+/, "")   // "to run" and "run" are the same answer here
       .replace(/[^a-z0-9 ]/g, "")
@@ -3172,7 +3659,7 @@
       if(pronRec){ try{ pronRec.stop(); }catch(e){} pronRec = null; micBtn.classList.remove("listening"); return; }
       var rec = new SpeechRec();
       pronRec = rec;
-      rec.lang = "en-US";
+      rec.lang = M.speech;
       rec.interimResults = false;
       rec.maxAlternatives = 5;
       micBtn.classList.add("listening");
@@ -3302,6 +3789,7 @@
     $("wotdMenuSub").textContent = wotd ? wotd.en : "";
     $("dailyMenuSub").textContent = dailyCfg.enabled ? ("פעיל · " + dailyCfg.time) : "כבוי";
     syncThemeButtons();
+    $("langMenuSub").textContent = (M.ui === "en") ? "English · learning Hebrew" : "עברית · לימוד אנגלית";
     $("aboutMenuSub").textContent = "גרסה " + APP_VERSION + " · " + APP_AUTHOR;
     var backup = readAutoBackup();
     $("restoreMenuSub").textContent = backup ? (backup.words.length + " מילים · " + backup.date) : "אין גיבוי עדיין";
@@ -3363,13 +3851,13 @@
       if(voiceRec){ try{ voiceRec.stop(); }catch(e){} voiceRec = null; return; }
       var rec = new SpeechRec();
       voiceRec = rec;
-      rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 3;
+      rec.lang = M.speech; rec.interimResults = false; rec.maxAlternatives = 3;
       mic.classList.add("listening");
       heard.textContent = "—";
       sub.textContent = "מקשיב...";
       rec.onresult = function(ev){
         var text = (ev.results[0][0].transcript || "").trim();
-        var word = sanitizeEnglish(text);
+        var word = sanitizeWord(text);
         if(!word){ renderVoiceAdd({ sub:"לא הצלחתי לזהות מילה באנגלית. נסו שוב." }); return; }
         renderVoiceAdd({ word:word, sub:"זו המילה הנכונה?" });
       };
@@ -3806,7 +4294,7 @@
 
   // ---------- Help & about ----------
   var APP_VERSION = "3.0";
-  var APP_DATE = "16 באוגוסט 2026";
+  var APP_DATE = (M.ui === "en") ? "16 August 2026" : "16 באוגוסט 2026";
   var APP_AUTHOR = "Maxim Weinstein";
 
   var HELP_TOPICS = [
@@ -3881,8 +4369,81 @@
       "<b>הרשימה נעלמה</b> — תפריט ← שחזור מגיבוי אוטומטי."]
   ];
 
+  var HELP_TOPICS_EN = [
+    ["Quick start",
+      "<ol class='help-steps'><li>Type a Hebrew word at the bottom of the screen — the translation and an example sentence are fetched automatically.</li>" +
+      "<li>From the menu above, pick <b>Smart review</b> — the app brings exactly the words that are due.</li>" +
+      "<li>Rate each word: Again / Hard / Good / Easy. The rating decides when it comes back.</li>" +
+      "<li>Set a daily session at a fixed time and come back every day. Five words a day is enough.</li></ol>"],
+
+    ["The main screen",
+      "<b>Progress bar</b> — how many words are learned out of your list.<br>" +
+      "<b>Search</b> — finds both Hebrew and English text.<br>" +
+      "<b>All / Learning / Learned</b> — filter by learning state.<br>" +
+      "<b>Slow / Normal</b> — speech rate; the choice is remembered.<br>" +
+      "<b>Sort</b> — newest, oldest, or alphabetical.<br><br>" +
+      "On each card: the speaker plays the word, the circle marks it learned, and tapping the word opens its details."],
+
+    ["Four ways to add words",
+      "<b>Typing</b> — at the bottom of the screen. The suggested translation is cross-checked against several sources; a green mark means they agree.<br>" +
+      "<b>Voice</b> — say a Hebrew word and confirm it.<br>" +
+      "<b>Paste text</b> — paste a paragraph and the app pulls out only the words you don't have yet.<br>" +
+      "<b>Bulk add</b> — a list in the form <span dir='rtl'>word = meaning</span>, one per line."],
+
+    ["The word details screen",
+      "A female and a male voice, your own recording for comparison, an example sentence with playback.<br><br>" +
+      "<b>Memory hook</b> — a personal note shown during practice: a sound-alike, a breakdown of the word, or your own sentence.<br>" +
+      "<b>Edit the spelling</b> — the review history is kept; the example sentence is fetched again.<br>" +
+      "<b>Delete</b> — tap twice. For seven seconds you can undo it from the bar at the bottom."],
+
+    ["Practice modes",
+      "<b>Smart review</b> — only the words that are due. This is the one to use.<br>" +
+      "<b>Fill in the sentence</b> — the word disappears from a real sentence and you complete it.<br>" +
+      "<b>Listening</b> — hear without seeing. Includes a hands-free radio mode.<br>" +
+      "<b>Flashcards</b> — Hebrew → English.<br>" +
+      "<b>Typing</b> — English → Hebrew, recall from memory.<br>" +
+      "<b>Pronunciation check</b> — say it out loud and the device compares.<br><br>" +
+      "Every mode feeds the same schedule."],
+
+    ["How spaced repetition works",
+      "The idea: see a word just before you would have forgotten it.<br><br>" +
+      "<b>Again</b> — didn't know it. The word returns within a minute.<br>" +
+      "<b>Hard</b> — recalled with effort. The interval grows a little.<br>" +
+      "<b>Good</b> — knew it. The interval grows by the word's own ease factor.<br>" +
+      "<b>Easy</b> — knew it instantly. The interval jumps.<br><br>" +
+      "Each word carries its own difficulty, so two words added together drift apart: one returns in two days, the other in a month. " +
+      "A typical run is <span dir='ltr'>1 → 2.5 → 6 → 16 → 40</span> days, and on up to a year. A word counts as learned once it holds for a week.<br><br>" +
+      "Swipe right = Good, swipe left = Again. The back button also undoes the last rating."],
+
+    ["Daily practice",
+      "Choose a time, how many words (3 / 5 / 10) and how they are picked. After that time a banner appears at the top of the list.<br><br>" +
+      "The day is marked done only when you finish every word. You can repeat the exact same session — at the end of the round or from the settings.<br><br>" +
+      "<i>This is an in-app reminder: it appears when you open the app after that time, and does not pop up on your phone by itself.</i>"],
+
+    ["Progress and hard words",
+      "<b>Day streak</b> — adding a word counts too, not just practising. A day you haven't practised yet doesn't break the streak.<br>" +
+      "<b>Average interval</b> — as it grows, the memory is getting stronger.<br><br>" +
+      "<b>Hard words</b> — a word forgotten four times lands there. Another repetition probably won't help, so the screen asks you for a memory hook instead."],
+
+    ["Backup — important",
+      "The list is stored in this browser on this device only. It is not in the cloud and not synced.<br><br>" +
+      "<b>Export JSON</b> — the full backup, including review history and notes. This is the file to keep.<br>" +
+      "<b>Export CSV</b> — for moving to Anki or Quizlet.<br>" +
+      "<b>Automatic backup</b> — a copy inside the browser refreshed once a day, which saves you from a bad import or an accidental delete.<br><br>" +
+      "Clearing browsing data or changing device will erase the list. A monthly export to a file is the only real protection."],
+
+    ["Troubleshooting",
+      "<b>No speech</b> — check the device isn't on silent, and that a Hebrew voice is installed in your device settings.<br>" +
+      "<b>Missing example sentences</b> — menu → Fill in missing information.<br>" +
+      "<b>The microphone doesn't work</b> — the browser needs permission; if it was denied, reset it in the site settings.<br>" +
+      "<b>No translation suggestion</b> — an internet connection is needed. You can type the meaning yourself.<br>" +
+      "<b>\"Nothing due for review\"</b> — that is normal: everything is scheduled for later.<br>" +
+      "<b>The list disappeared</b> — menu → Restore from automatic backup."]
+  ];
+
   function renderHelp(){
-    $("helpBody").innerHTML = HELP_TOPICS.map(function(t, i){
+    var topics = (M.ui === "en") ? HELP_TOPICS_EN : HELP_TOPICS;
+    $("helpBody").innerHTML = topics.map(function(t, i){
       return '<details class="help-item"' + (i === 0 ? ' open' : '') + '>' +
         '<summary>' + escapeHtml(t[0]) + '</summary>' +
         '<div class="help-text">' + t[1] + '</div>' +
@@ -3897,7 +4458,7 @@
       '<div class="about-hero">' +
         '<div class="about-mark"></div>' +
         '<div class="about-name">המילון שלי</div>' +
-        '<div class="about-ver">גרסה ' + APP_VERSION + ' · ' + APP_DATE + '</div>' +
+        '<div class="about-ver">' + (M.ui === "en" ? "Version " : "גרסה ") + APP_VERSION + ' · ' + APP_DATE + '</div>' +
       '</div>' +
       '<div class="about-rows">' +
         '<div class="about-row"><span>פותח על ידי</span><b dir="ltr">' + escapeHtml(APP_AUTHOR) + '</b></div>' +
@@ -3906,8 +4467,11 @@
         '<div class="about-row"><span>רצף נוכחי</span><b>' + currentStreak() + ' ימים</b></div>' +
         '<div class="about-row"><span>ייצוא אחרון</span><b>' + (backup ? escapeHtml(backup) : "טרם בוצע") + '</b></div>' +
       '</div>' +
-      '<div class="about-note">האפליקציה פועלת כקובץ יחיד, ללא שרת. כל הנתונים נשמרים במכשיר שלך בלבד ' +
-        'ואינם נשלחים לשום מקום — למעט שמות מילים באנגלית, שנשלחים לשירותי התרגום והמילון בעת ההוספה.</div>' +
+      '<div class="about-note">' + (M.ui === "en"
+        ? "The app runs as a single file with no server. All your data stays on this device and is sent nowhere — " +
+          "apart from the words themselves, which go to the translation and dictionary services when you add them."
+        : "האפליקציה פועלת כקובץ יחיד, ללא שרת. כל הנתונים נשמרים במכשיר שלך בלבד " +
+          "ואינם נשלחים לשום מקום — למעט המילים עצמן, שנשלחות לשירותי התרגום והמילון בעת ההוספה.") + '</div>' +
       '<div class="about-credits"><span class="field-label">מקורות המידע</span>' +
         'Google Translate · MyMemory · Wikipedia · Free Dictionary API · Tatoeba · Datamuse</div>';
   }
@@ -3916,6 +4480,27 @@
   $("menuAbout").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderAbout(); openOverlay("aboutOverlay"); });
   $("helpClose").addEventListener("click", function(){ closeOverlay("helpOverlay"); });
   $("aboutClose").addEventListener("click", function(){ closeOverlay("aboutOverlay"); });
+
+  // ---------- Language picker ----------
+  function chooseLanguage(lang){
+    var previous = uiLang;
+    try{ localStorage.setItem(LANG_KEY, lang); }catch(e){}
+    // A reload is the honest way to switch: direction, storage key, speech language and
+    // every fetch URL are decided at startup, and rebuilding them in place invites bugs.
+    if(previous && previous !== lang) location.reload();
+    else location.reload();
+  }
+  document.querySelectorAll(".lang-opt").forEach(function(btn){
+    btn.addEventListener("click", function(){ chooseLanguage(btn.getAttribute("data-lang")); });
+  });
+  if(!uiLang) $("langGate").classList.add("show");
+
+  $("menuLang").addEventListener("click", function(){
+    closeOverlay("menuOverlay");
+    $("langGate").classList.add("show");
+  });
+
+  applyLanguage();
 
   // ---------- Init ----------
   renderChips();
@@ -3926,4 +4511,3 @@
 </script>
 </body>
 </html>
-
