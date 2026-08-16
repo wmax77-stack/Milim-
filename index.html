@@ -40,8 +40,44 @@
     --sh-3:0 4px 8px rgba(60,64,67,0.15), 0 12px 28px rgba(60,64,67,0.15);
     --sh-brand:0 1px 3px rgba(26,115,232,0.35);
 
+    --on-brand:#FFFFFF;      /* text on filled buttons — flips in dark mode */
     --mono:"Roboto Mono",ui-monospace,"SF Mono",Menlo,monospace;
   }
+
+  /* Dark theme — Google's dark palette. Applied by data-theme on <html>,
+     which the app sets from the user's choice (or the device, on auto). */
+  :root[data-theme="dark"]{
+    --bg:#202124;
+    --surface:#292A2D;
+    --card:#292A2D;
+    --line:#3C4043;
+    --line-soft:#35363A;
+
+    --ink:#E8EAED;
+    --ink-soft:#BDC1C6;
+    --ink-faint:#9AA0A6;
+
+    --brand:#8AB4F8;
+    --brand-deep:#AECBFA;
+    --brand-tint:#2A3A52;
+    --brand-tint-2:#35476A;
+    --on-brand:#202124;
+
+    --good:#81C995;
+    --good-tint:#243328;
+    --warn:#F28B82;
+    --warn-tint:#3A2B2A;
+    --gold:#FDD663;
+
+    --sh-1:0 1px 2px rgba(0,0,0,0.35);
+    --sh-2:0 1px 3px rgba(0,0,0,0.45), 0 4px 8px rgba(0,0,0,0.30);
+    --sh-3:0 4px 8px rgba(0,0,0,0.45), 0 12px 28px rgba(0,0,0,0.45);
+    --sh-brand:0 1px 3px rgba(0,0,0,0.4);
+  }
+  :root[data-theme="dark"] .grade-btn.g1{ background:#3A3320; color:var(--gold); }
+  :root[data-theme="dark"] .word-freq.f2{ background:var(--brand-tint); color:var(--brand-deep); }
+  :root[data-theme="dark"] .word-freq.f4{ background:#3A3320; color:var(--gold); }
+  :root[data-theme="dark"] .overlay{ background:rgba(0,0,0,0.6); }
 
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{ margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink);
@@ -98,13 +134,13 @@
   .chips-row::-webkit-scrollbar{ display:none; }
   .chip{ flex-shrink:0; border:none; background:var(--bg); color:var(--ink-soft); font-size:12.5px; font-weight:600;
     padding:6px 13px; border-radius:var(--r-full); cursor:pointer; white-space:nowrap; transition:all .15s ease; }
-  .chip.active{ background:var(--brand); color:#fff; box-shadow:var(--sh-brand); }
+  .chip.active{ background:var(--brand); color:var(--on-brand); box-shadow:var(--sh-brand); }
 
   .controls-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding-bottom:4px; }
   .speed-toggle{ display:inline-flex; gap:2px; background:var(--bg); border-radius:var(--r-full); padding:3px; }
   .speed-btn{ border:none; background:transparent; color:var(--ink-soft); font-size:12.5px; font-weight:600;
     padding:5px 13px; border-radius:var(--r-full); cursor:pointer; transition:all .15s ease; }
-  .speed-btn.active{ background:var(--brand); color:#fff; }
+  .speed-btn.active{ background:var(--brand); color:var(--on-brand); }
   .sort-row select{ font-size:12.5px; font-weight:600; padding:7px 11px; border-radius:var(--r-full);
     border:none; background:var(--bg); color:var(--ink-soft); font-family:inherit; cursor:pointer; }
 
@@ -135,7 +171,7 @@
   .example-box{ display:none; background:var(--brand-tint); border-radius:var(--r-sm); padding:12px 14px; margin-bottom:16px; }
   .example-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
   .example-label{ font-size:11px; font-weight:700; color:var(--brand-deep); }
-  #exampleSpeak{ width:28px; height:28px; border-radius:50%; border:none; background:var(--brand); color:#fff;
+  #exampleSpeak{ width:28px; height:28px; border-radius:50%; border:none; background:var(--brand); color:var(--on-brand);
     display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
   #exampleSpeak svg{ width:14px; height:14px; }
   #exampleSpeak:active{ transform:scale(0.9); }
@@ -169,7 +205,7 @@
   .listen-card{ background:var(--bg); border-radius:var(--r-lg); padding:34px 20px; text-align:center;
     min-height:170px; display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:14px; margin-bottom:14px; }
-  .listen-play{ width:74px; height:74px; border-radius:50%; border:none; background:var(--brand); color:#fff;
+  .listen-play{ width:74px; height:74px; border-radius:50%; border:none; background:var(--brand); color:var(--on-brand);
     display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--sh-brand); }
   .listen-play svg{ width:32px; height:32px; }
   .listen-play:active{ transform:scale(0.93); }
@@ -201,7 +237,7 @@
   .rel-chip{ border:none; background:var(--bg); color:var(--ink); font-size:12.5px; font-weight:600;
     padding:5px 11px; border-radius:var(--r-full); cursor:pointer; font-family:inherit; }
   .rel-chip.static{ color:var(--ink-soft); cursor:default; }
-  .rel-chip:not(.static):active{ background:var(--brand); color:#fff; }
+  .rel-chip:not(.static):active{ background:var(--brand); color:var(--on-brand); }
 
   /* ---------- Card badges ---------- */
   .word-freq{ display:inline-block; font-size:10px; font-weight:700; padding:2px 8px;
@@ -227,7 +263,7 @@
   .paste-chip{ border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font-size:14px;
     font-weight:600; padding:7px 13px; border-radius:var(--r-full); cursor:pointer; font-family:inherit;
     display:inline-flex; align-items:center; gap:6px; transition:all .15s ease; }
-  .paste-chip.on{ background:var(--brand); border-color:var(--brand); color:#fff; }
+  .paste-chip.on{ background:var(--brand); border-color:var(--brand); color:var(--on-brand); }
   .paste-count{ font-family:var(--mono); font-size:10px; opacity:.65; }
 
   /* ---------- Menu sections ---------- */
@@ -258,7 +294,7 @@
   .pron-actions{ display:flex; align-items:center; justify-content:center; gap:12px; margin:22px 0 16px; }
   .voice-btn{ border:none; background:var(--brand-tint); color:var(--brand-deep); font-size:13.5px;
     font-weight:700; padding:12px 18px; border-radius:var(--r-full); cursor:pointer; font-family:inherit; }
-  .pron-mic{ width:64px; height:64px; border-radius:50%; border:none; background:var(--brand); color:#fff;
+  .pron-mic{ width:64px; height:64px; border-radius:50%; border:none; background:var(--brand); color:var(--on-brand);
     display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--sh-brand); }
   .pron-mic svg{ width:26px; height:26px; }
   .pron-mic.listening{ background:var(--warn); animation:pulse 1.1s infinite; }
@@ -298,7 +334,7 @@
   .daily-banner-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
   .daily-banner-text strong{ font-size:14px; color:var(--brand-deep); }
   .daily-banner-text span{ font-size:11.5px; color:var(--ink-soft); }
-  #dailyBannerStart{ border:none; background:var(--brand); color:#fff; font-size:13px; font-weight:700;
+  #dailyBannerStart{ border:none; background:var(--brand); color:var(--on-brand); font-size:13px; font-weight:700;
     padding:8px 16px; border-radius:var(--r-full); cursor:pointer; flex-shrink:0; }
   #dailyBannerStart:active{ transform:scale(0.95); }
   .daily-banner-x{ border:none; background:transparent; color:var(--ink-faint); width:26px; height:26px;
@@ -335,12 +371,12 @@
   .status-check{ flex-shrink:0; width:30px; height:30px; border-radius:50%; border:1.5px solid var(--line);
     background:var(--surface); color:var(--ink-faint); display:flex; align-items:center; justify-content:center;
     cursor:pointer; transition:all .18s ease; }
-  .status-check.known{ background:var(--good); border-color:var(--good); color:#fff; }
+  .status-check.known{ background:var(--good); border-color:var(--good); color:var(--on-brand); }
   .status-check svg{ width:15px; height:15px; }
   .status-check:active{ transform:scale(0.88); }
 
   .speak-btn{ flex-shrink:0; width:44px; height:44px; border-radius:50%; border:none; background:var(--brand);
-    color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;
+    color:var(--on-brand); display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative;
     box-shadow:var(--sh-brand); transition:transform .15s ease; }
   .speak-btn:active{ transform:scale(0.9); }
   .speak-btn svg{ width:19px; height:19px; }
@@ -378,7 +414,7 @@
   .two-col{ display:flex; gap:9px; }
   .two-col .input-row{ flex:1; }
   button.add-btn{ width:100%; padding:14px; border-radius:var(--r-sm); border:none; background:var(--brand);
-    color:#fff; font-size:16px; font-weight:700; cursor:pointer; box-shadow:var(--sh-brand);
+    color:var(--on-brand); font-size:16px; font-weight:700; cursor:pointer; box-shadow:var(--sh-brand);
     transition:transform .15s ease, opacity .15s ease; }
   button.add-btn:disabled{ opacity:.3; box-shadow:none; }
   button.add-btn:active:not(:disabled){ transform:scale(0.98); }
@@ -412,9 +448,9 @@
   .tr-alts-label{ font-size:11px; color:var(--ink-faint); font-weight:600; }
   .tr-chip{ border:none; background:var(--surface); color:var(--ink); font-size:12.5px; font-weight:600;
     padding:5px 11px; border-radius:var(--r-full); cursor:pointer; direction:rtl; box-shadow:var(--sh-1); }
-  .tr-chip:active{ background:var(--brand); color:#fff; }
+  .tr-chip:active{ background:var(--brand); color:var(--on-brand); }
   .tr-chip .tr-pos{ font-size:9.5px; color:var(--ink-faint); margin-inline-start:5px; }
-  .tr-accept{ border:none; background:var(--brand); color:#fff; font-size:11.5px; font-weight:700;
+  .tr-accept{ border:none; background:var(--brand); color:var(--on-brand); font-size:11.5px; font-weight:700;
     padding:4px 11px; border-radius:var(--r-full); cursor:pointer; margin-inline-start:8px; }
   .tr-links{ display:flex; gap:14px; margin-top:10px; padding-top:9px; border-top:1px solid var(--line); }
   .tr-links a{ font-size:11.5px; color:var(--brand); font-weight:600; text-decoration:none; }
@@ -439,6 +475,16 @@
   /* Detail sheet */
   .detail-word{ direction:ltr; text-align:center; font-size:30px; font-weight:800; letter-spacing:-0.03em; margin-bottom:3px; }
   .detail-phon{ direction:ltr; text-align:center; font-family:var(--mono); font-size:13px; color:var(--ink-faint); margin-bottom:18px; }
+  .edit-en-toggle{ display:block; margin:0 auto 14px; border:none; background:transparent; color:var(--brand);
+    font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; padding:2px 8px; }
+  .edit-en-row{ display:none; gap:8px; margin-bottom:16px; }
+  .edit-en-row.open{ display:flex; }
+  .edit-en-row input{ flex:1; font-size:16px; font-weight:600; padding:11px 13px; border-radius:var(--r-sm);
+    border:1.5px solid var(--line); background:var(--surface); color:var(--ink); outline:none; font-family:inherit; }
+  .edit-en-row input:focus{ border-color:var(--brand); }
+  .edit-en-row button{ border:none; background:var(--brand); color:var(--on-brand); font-size:13.5px;
+    font-weight:700; padding:0 18px; border-radius:var(--r-sm); cursor:pointer; font-family:inherit; }
+
   .voice-row{ display:flex; gap:9px; margin-bottom:12px; }
   .voice-row button{ flex:1; padding:12px 8px; border-radius:var(--r-sm); border:none; background:var(--brand-tint);
     color:var(--brand-deep); font-size:13.5px; font-weight:700; cursor:pointer; }
@@ -448,10 +494,10 @@
     border-radius:var(--r-sm); padding:12px; }
   .record-box button{ border:none; border-radius:50%; width:42px; height:42px; display:flex; align-items:center;
     justify-content:center; cursor:pointer; flex-shrink:0; }
-  #recordBtn{ background:var(--warn); color:#fff; }
+  #recordBtn{ background:var(--warn); color:var(--on-brand); }
   #recordBtn.recording{ animation:pulse 1.1s infinite; }
   @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.5; } }
-  #playRecBtn{ background:var(--brand); color:#fff; }
+  #playRecBtn{ background:var(--brand); color:var(--on-brand); }
   #playRecBtn:disabled{ opacity:.28; }
   .record-box .rec-label{ font-size:12.5px; color:var(--ink-soft); flex:1; line-height:1.5; }
 
@@ -459,12 +505,12 @@
   .status-row{ display:flex; gap:9px; margin-bottom:18px; }
   .status-row button{ flex:1; padding:11px; border-radius:var(--r-sm); border:1.5px solid var(--line);
     background:var(--surface); color:var(--ink-soft); font-weight:700; font-size:13.5px; cursor:pointer; }
-  .status-row button.active{ background:var(--good); border-color:var(--good); color:#fff; }
+  .status-row button.active{ background:var(--good); border-color:var(--good); color:var(--on-brand); }
 
   .delete-zone{ margin-top:20px; padding-top:18px; border-top:1px solid var(--line); }
   #deleteBtn{ width:100%; padding:13px; border-radius:var(--r-sm); border:none; background:var(--warn-tint);
     color:var(--warn); font-weight:700; font-size:14.5px; cursor:pointer; }
-  #deleteBtn.confirming{ background:var(--warn); color:#fff; }
+  #deleteBtn.confirming{ background:var(--warn); color:var(--on-brand); }
 
   /* Quiz */
   .quiz-progress{ text-align:center; font-size:12px; color:var(--ink-faint); margin-bottom:12px;
@@ -481,7 +527,7 @@
   .quiz-actions{ display:flex; gap:10px; }
   .quiz-actions button{ flex:1; padding:15px; border-radius:var(--r-sm); border:none; font-weight:700;
     font-size:15px; cursor:pointer; }
-  #quizKnow{ background:var(--good); color:#fff; }
+  #quizKnow{ background:var(--good); color:var(--on-brand); }
   #quizDontKnow{ background:var(--warn-tint); color:var(--warn); }
   .quiz-speak{ display:flex; justify-content:center; margin-bottom:14px; }
   .quiz-empty{ text-align:center; padding:40px 10px; color:var(--ink-soft); font-size:14.5px; line-height:1.75; }
@@ -503,12 +549,22 @@
 
   /* Toast + confetti */
   #toast{ position:fixed; top:calc(env(safe-area-inset-top) + 12px); left:50%;
-    transform:translateX(-50%) translateY(-24px); background:var(--ink); color:#fff; padding:12px 22px;
+    transform:translateX(-50%) translateY(-24px); background:var(--ink); color:var(--surface); padding:12px 22px;
     border-radius:var(--r-full); font-size:14px; font-weight:700; opacity:0; pointer-events:none;
     transition:all .3s cubic-bezier(.22,1,.36,1); z-index:200; white-space:nowrap; box-shadow:var(--sh-3); }
   #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   .confetti-piece{ position:fixed; top:-24px; font-size:20px; z-index:199; animation:fall linear forwards; pointer-events:none; }
   @keyframes fall{ to{ transform:translateY(110vh) rotate(360deg); opacity:0.3; } }
+
+  #undoBar{ position:fixed; bottom:calc(env(safe-area-inset-bottom) + 16px); left:50%;
+    transform:translateX(-50%) translateY(16px); display:flex; align-items:center; gap:14px;
+    background:var(--ink); color:var(--surface); padding:11px 14px 11px 18px; border-radius:var(--r-full);
+    font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; z-index:210;
+    transition:all .25s cubic-bezier(.22,1,.36,1); box-shadow:var(--sh-3); max-width:92vw; }
+  #undoBar.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+  #undoBtn{ border:none; background:transparent; color:var(--brand); font-size:13.5px; font-weight:800;
+    cursor:pointer; font-family:inherit; padding:2px 4px; }
+  :root[data-theme="dark"] #undoBtn{ color:var(--brand-deep); }
 
   ::selection{ background:var(--brand-tint-2); color:var(--brand-deep); }
 </style>
@@ -628,6 +684,11 @@
       <button class="close-x" id="detailClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="detail-word" id="detailWord"></div>
+    <button type="button" class="edit-en-toggle" id="editWordToggle">עריכת האיות באנגלית</button>
+    <div class="edit-en-row" id="editWordRow">
+      <input type="text" id="editWord" dir="ltr" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="button" id="editWordSave">שמירה</button>
+    </div>
     <div class="detail-phon" id="detailPhon"></div>
 
     <div class="voice-row">
@@ -733,6 +794,17 @@
       <button class="close-x" id="listenClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="listenBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="restoreOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>שחזור מגיבוי אוטומטי</h2>
+      <button class="close-x" id="restoreClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="restoreBody"></div>
   </div>
 </div>
 
@@ -878,6 +950,7 @@
     <button type="button" class="add-btn" id="dailySave">שמור</button>
     <div class="hint" id="dailyStatus"></div>
     <button type="button" class="text-btn" id="dailyStartNow">להתחיל תרגול עכשיו</button>
+    <button type="button" class="text-btn" id="dailyRepeat" style="display:none;"></button>
   </div>
 </div>
 
@@ -962,6 +1035,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
         ייצוא הרשימה לקובץ גיבוי
       </button>
+      <button type="button" id="menuRestore">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+        <span class="menu-text">שחזור מגיבוי אוטומטי<em id="restoreMenuSub"></em></span>
+      </button>
       <button type="button" id="menuCsv">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
         <span class="menu-text">ייצוא CSV ל-Anki / Quizlet<em>מעבר לאפליקציה אחרת</em></span>
@@ -972,11 +1049,22 @@
       </label>
       <input type="file" id="importInput" accept="application/json">
     </div>
+    <div class="menu-section-label">מראה</div>
+    <div class="seg" id="themeSeg">
+      <button type="button" data-theme="auto">לפי המכשיר</button>
+      <button type="button" data-theme="light">בהיר</button>
+      <button type="button" data-theme="dark">כהה</button>
+    </div>
+
     <div class="hint" id="menuHint"></div>
   </div>
 </div>
 
 <div id="toast"></div>
+<div id="undoBar">
+  <span id="undoText"></span>
+  <button type="button" id="undoBtn">ביטול</button>
+</div>
 
 <script>
 (function(){
@@ -1878,6 +1966,8 @@
     if(!entry) return;
     detailWordId = id;
     $("detailWord").textContent = entry.en;
+    $("editWord").value = entry.en;
+    $("editWordRow").classList.remove("open");
     $("detailPhon").textContent = entry.phonetic || "";
     $("editMeaning").value = entry.he;
     $("editCategory").value = entry.category;
@@ -1978,6 +2068,40 @@
   $("setLearning").addEventListener("click", function(){ $("setLearning").classList.add("active"); $("setKnown").classList.remove("active"); });
   $("setKnown").addEventListener("click", function(){ $("setKnown").classList.add("active"); $("setLearning").classList.remove("active"); });
 
+  $("editWordToggle").addEventListener("click", function(){
+    $("editWordRow").classList.toggle("open");
+    if($("editWordRow").classList.contains("open")) $("editWord").focus();
+  });
+  $("editWordSave").addEventListener("click", async function(){
+    var entry = words.find(function(w){ return w.id === detailWordId; });
+    if(!entry) return;
+    var en = sanitizeEnglish($("editWord").value);
+    if(!en){ showToast("במילה באנגלית אפשר אותיות, רווח, מקף וגרש בלבד"); return; }
+    if(en.toLowerCase() === entry.en.toLowerCase()){ $("editWordRow").classList.remove("open"); return; }
+    var clash = words.some(function(w){ return w.id !== entry.id && w.en.toLowerCase() === en.toLowerCase(); });
+    if(clash){ showToast('המילה "' + en + '" כבר קיימת ברשימה'); return; }
+
+    // The review history belongs to you, not to the spelling — it survives the correction.
+    // What was fetched for the old spelling doesn't, so it's cleared and looked up again.
+    entry.en = en;
+    entry.phonetic = ""; entry.example = ""; entry.freq = -1;
+    saveWords(words);
+    $("detailWord").textContent = en;
+    $("detailPhon").textContent = "";
+    $("editWordRow").classList.remove("open");
+    render();
+    showToast("האיות עודכן — מחפש תעתיק ומשפט");
+
+    var info = await fetchWordInfo(en);
+    if(detailWordId !== entry.id) return;
+    if(info){
+      if(info.phonetic){ entry.phonetic = info.phonetic; $("detailPhon").textContent = info.phonetic; }
+      if(info.example) entry.example = info.example;
+    }
+    fetchFrequency(en).then(function(f){ if(f >= 0){ entry.freq = f; saveWords(words); render(); } });
+    saveWords(words); render(); renderExample(entry); renderRelated(entry);
+  });
+
   $("saveDetailBtn").addEventListener("click", function(){
     var entry = words.find(function(w){ return w.id === detailWordId; });
     if(!entry) return;
@@ -2000,8 +2124,11 @@
       setTimeout(function(){ deleteBtn.classList.remove("confirming"); deleteBtn.textContent = "מחק מילה"; }, 3000);
       return;
     }
+    var idx = words.findIndex(function(w){ return w.id === detailWordId; });
+    var removed = idx !== -1 ? words[idx] : null;
     words = words.filter(function(w){ return w.id !== detailWordId; });
     saveWords(words);
+    if(removed) offerUndo(removed, idx);
     renderChips(); render();
     closeOverlay("detailOverlay");
   });
@@ -2092,6 +2219,12 @@
     saveStats();
   }
   function recordAdd(){ dayRecord(todayKey()).added++; saveStats(); }
+  function undoReview(wasCorrect){
+    var d = dayRecord(todayKey());
+    d.reviewed = Math.max(0, d.reviewed - 1);
+    if(wasCorrect) d.correct = Math.max(0, d.correct - 1);
+    saveStats();
+  }
 
   function dateKeyOffset(n){
     var d = new Date();
@@ -2137,7 +2270,36 @@
   }
 
   // ---------- Quiz ----------
-  var quizQueue = [], quizIndex = 0, quizRevealed = false;
+  var quizQueue = [], quizIndex = 0, quizRevealed = false, quizHistory = [];
+
+  // Going back has to undo the rating too, otherwise a misclick permanently shifts
+  // the word's schedule. These are the fields a rating touches.
+  var SRS_FIELDS = ["level","due","interval","ease","reviews","lapses","status"];
+  function snapshotEntry(e){
+    var snap = { id:e.id };
+    SRS_FIELDS.forEach(function(k){ snap[k] = e[k]; });
+    return snap;
+  }
+  function restoreEntry(snap){
+    var e = words.find(function(w){ return w.id === snap.id; });
+    if(!e) return;
+    SRS_FIELDS.forEach(function(k){ e[k] = snap[k]; });
+    saveWords(words);
+  }
+  function rateAndAdvance(entry, grade){
+    quizHistory.push({ index:quizIndex, snap:snapshotEntry(entry), grade:grade });
+    srsRate(entry, grade);
+    nextQuizCard();
+  }
+  function stepBack(){
+    var last = quizHistory.pop();
+    if(!last) return;
+    restoreEntry(last.snap);
+    undoReview(last.grade > 0);   // roll the day's counters back as well
+    quizIndex = last.index;
+    quizRevealed = true;          // land on the answer, ready to re-rate
+    render(); renderQuiz();
+  }
   var quizBtn = $("quizBtn"), quizBody = $("quizBody"), quizTitle = $("quizTitle");
 
   function startQuiz(){
@@ -2145,12 +2307,15 @@
     var pool = words.filter(function(w){ return w.status !== "known"; });
     if(!pool.length) pool = words.slice();
     quizQueue = pool.slice().sort(function(){ return Math.random() - 0.5; });
-    quizIndex = 0; quizRevealed = false;
+    quizIndex = 0; quizRevealed = false; quizHistory = [];
     renderQuiz();
     openOverlay("quizOverlay");
   }
   quizBtn.addEventListener("click", startQuiz);
-  $("quizClose").addEventListener("click", function(){ closeOverlay("quizOverlay"); window.speechSynthesis && window.speechSynthesis.cancel(); });
+  $("quizClose").addEventListener("click", function(){
+    if(dailySessionOpen && quizIndex >= quizQueue.length) finishDailySession();
+    dailySessionOpen = false;
+    refreshDailyBanner(); closeOverlay("quizOverlay"); window.speechSynthesis && window.speechSynthesis.cancel(); });
 
   function renderQuiz(){
     if(!quizQueue.length){
@@ -2158,8 +2323,16 @@
       return;
     }
     if(quizIndex >= quizQueue.length){
+      finishDailySession();
       quizBody.innerHTML = '<div class="quiz-empty">🎉 סיימת את כל המילים בתרגול הזה!</div>' +
-        '<button type="button" class="add-btn" id="quizRestart">התחל/י סבב חדש</button>';
+        '<button type="button" class="add-btn" id="quizRepeat">לחזור על אותן ' + quizQueue.length + ' מילים</button>' +
+        '<button type="button" class="text-btn" id="quizRestart">סבב חדש ממילים אחרות</button>';
+      $("quizRepeat").addEventListener("click", function(){
+        // Same words, shuffled, so the second pass tests the words and not the order.
+        quizQueue = quizQueue.slice().sort(function(){ return Math.random() - 0.5; });
+        quizIndex = 0; quizRevealed = false; quizHistory = [];
+        renderQuiz();
+      });
       $("quizRestart").addEventListener("click", startQuiz);
       return;
     }
@@ -2179,15 +2352,16 @@
             gradeBtn(0, "שוב", entry) + gradeBtn(1, "קשה", entry) +
             gradeBtn(2, "טוב", entry) + gradeBtn(3, "קל", entry) +
           '</div>'
-        : '<button type="button" class="add-btn" id="quizReveal">הצג את הפירוש</button>');
+        : '<button type="button" class="add-btn" id="quizReveal">הצג את הפירוש</button>') +
+      (quizHistory.length ? '<button type="button" class="text-btn" id="quizBack">חזרה למילה הקודמת</button>' : '');
 
     $("flashcard").addEventListener("click", function(){ quizRevealed = !quizRevealed; renderQuiz(); });
+    if(quizHistory.length) $("quizBack").addEventListener("click", stepBack);
     $("quizSpeakBtn").addEventListener("click", function(ev){ ev.stopPropagation(); speakWord(entry.en, "female", null); });
     if(quizRevealed){
       quizBody.querySelectorAll(".grade-btn").forEach(function(b){
         b.addEventListener("click", function(){
-          srsRate(entry, parseInt(b.getAttribute("data-grade"),10));
-          nextQuizCard();
+          rateAndAdvance(entry, parseInt(b.getAttribute("data-grade"),10));
         });
       });
     } else {
@@ -2203,8 +2377,7 @@
       var dx = e.changedTouches[0].clientX - startX;
       startX = null;
       if(Math.abs(dx) < 60) return;
-      srsRate(entry, dx > 0 ? 2 : 0);   // swipe right = good, swipe left = again
-      nextQuizCard();
+      rateAndAdvance(entry, dx > 0 ? 2 : 0);   // swipe right = good, swipe left = again
     }, {passive:true});
   }
   // Shows what each answer costs you: the gap until the word returns.
@@ -2286,6 +2459,11 @@
   }
   $("menuExport").addEventListener("click", function(){ exportWords(); markBackup(); });
   $("menuCsv").addEventListener("click", exportCsv);
+  $("menuRestore").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderRestore(); openOverlay("restoreOverlay"); });
+  $("restoreClose").addEventListener("click", function(){ closeOverlay("restoreOverlay"); });
+  $("themeSeg").querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){ setTheme(b.getAttribute("data-theme")); });
+  });
   $("menuBackfill").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderBackfill(); openOverlay("backfillOverlay"); });
   $("backfillClose").addEventListener("click", function(){ backfillCancel = true; closeOverlay("backfillOverlay"); render(); });
   $("menuCloze").addEventListener("click", function(){ closeOverlay("menuOverlay"); startCloze(); });
@@ -2454,7 +2632,7 @@
     $("leechPractice").addEventListener("click", function(){
       closeOverlay("leechOverlay");
       quizTitle.textContent = "מילים קשות";
-      quizQueue = list.slice(0, 20); quizIndex = 0; quizRevealed = false;
+      quizQueue = list.slice(0, 20); quizIndex = 0; quizRevealed = false; quizHistory = [];
       renderQuiz(); openOverlay("quizOverlay");
     });
   }
@@ -2958,7 +3136,7 @@
     }
     quizTitle.textContent = "חזרה חכמה";
     quizQueue = due.slice(0, 20);
-    quizIndex = 0; quizRevealed = false;
+    quizIndex = 0; quizRevealed = false; quizHistory = [];
     renderQuiz();
     openOverlay("quizOverlay");
   }
@@ -2971,6 +3149,9 @@
     var wotd = wordOfTheDay();
     $("wotdMenuSub").textContent = wotd ? wotd.en : "";
     $("dailyMenuSub").textContent = dailyCfg.enabled ? ("פעיל · " + dailyCfg.time) : "כבוי";
+    syncThemeButtons();
+    var backup = readAutoBackup();
+    $("restoreMenuSub").textContent = backup ? (backup.words.length + " מילים · " + backup.date) : "אין גיבוי עדיין";
     var missing = wordsMissingInfo().length;
     $("backfillMenuSub").textContent = missing ? (missing + " מילים חסר להן מידע") : "הכל מושלם";
     var leeches = leechWords().length;
@@ -3170,7 +3351,7 @@
   // ---------- Daily session ----------
   var DAILY_KEY = "myWordsApp.daily";
   var dailyCfg = (function(){
-    var def = { enabled:false, time:"20:00", count:5, pick:"due", category:"", lastDone:"", lastSkipped:"" };
+    var def = { enabled:false, time:"20:00", count:5, pick:"due", category:"", lastDone:"", lastSkipped:"", lastWordIds:[] };
     try{
       var raw = JSON.parse(localStorage.getItem(DAILY_KEY) || "{}");
       if(raw && typeof raw === "object"){
@@ -3181,6 +3362,7 @@
         if(typeof raw.category === "string") def.category = raw.category.slice(0,30);
         if(typeof raw.lastDone === "string") def.lastDone = raw.lastDone.slice(0,10);
         if(typeof raw.lastSkipped === "string") def.lastSkipped = raw.lastSkipped.slice(0,10);
+        if(Array.isArray(raw.lastWordIds)) def.lastWordIds = raw.lastWordIds.filter(function(x){ return typeof x === "string"; }).slice(0,20);
       }
     }catch(e){}
     return def;
@@ -3215,10 +3397,18 @@
     if(!dailyCfg.enabled || !words.length) return false;
     var today = todayKey();
     if(dailyCfg.lastDone === today || dailyCfg.lastSkipped === today) return false;
+    if(dailySessionOpen) return false;
     return minutesNow() >= minutesOf(dailyCfg.time);
   }
 
   var dailyBanner = $("dailyBanner"), dailyBannerSub = $("dailyBannerSub");
+  var dailySessionOpen = false;
+  function finishDailySession(){
+    if(!dailySessionOpen) return;
+    dailySessionOpen = false;
+    dailyCfg.lastDone = todayKey(); saveDaily();
+    refreshDailyBanner();
+  }
   function refreshDailyBanner(){
     if(!dailyBanner) return;   // render() can run before this section is initialised
     var due = dailyIsDue();
@@ -3229,11 +3419,26 @@
   function startDailySession(){
     var picked = pickDailyWords();
     if(!picked.length){ showToast("אין מילים מתאימות לתרגול"); return; }
-    dailyCfg.lastDone = todayKey(); saveDaily();
+    dailyCfg.lastWordIds = picked.map(function(w){ return w.id; });
+    saveDaily();
+    dailySessionOpen = true;              // marked done at the end of the round, not at the start
     dailyBanner.classList.remove("show");
     quizQueue = picked;
-    quizIndex = 0; quizRevealed = false;
+    quizIndex = 0; quizRevealed = false; quizHistory = [];
     quizTitle.textContent = "התרגול היומי";
+    renderQuiz();
+    openOverlay("quizOverlay");
+  }
+
+  // The same five words again — a second pass on the same set, not a new selection.
+  function repeatDailySession(){
+    var byId = {};
+    words.forEach(function(w){ byId[w.id] = w; });
+    var picked = (dailyCfg.lastWordIds || []).map(function(id){ return byId[id]; }).filter(Boolean);
+    if(!picked.length){ startDailySession(); return; }
+    quizTitle.textContent = "התרגול היומי — שוב";
+    quizQueue = picked.slice().sort(function(){ return Math.random() - 0.5; });
+    quizIndex = 0; quizRevealed = false; quizHistory = [];
     renderQuiz();
     openOverlay("quizOverlay");
   }
@@ -3281,13 +3486,21 @@
       b.classList.toggle("active", parseInt(b.getAttribute("data-count"),10) === dailyCfg.count);
     });
     fillDailyCategories();
+    var repeatBtn = $("dailyRepeat");
+    var saved = (dailyCfg.lastWordIds || []).length;
+    if(saved){
+      repeatBtn.style.display = "block";
+      repeatBtn.textContent = "לחזור על אותן " + saved + " המילים של התרגול האחרון";
+    } else {
+      repeatBtn.style.display = "none";
+    }
     describeDaily();
   }
 
   function describeDaily(){
     if(!dailyCfg.enabled){ dailyStatus.textContent = "התזכורת כבויה כרגע."; return; }
     var line = "מוכן: " + dailyCfg.count + " מילים כל יום ב-" + dailyCfg.time + ".";
-    if(dailyCfg.lastDone === todayKey()) line += " התרגול של היום כבר בוצע ✓";
+    if(dailyCfg.lastDone === todayKey()) line += " התרגול של היום כבר בוצע ✓ (אפשר לחזור עליו למטה)";
     dailyStatus.textContent = line;
   }
 
@@ -3319,6 +3532,10 @@
     closeOverlay("dailyOverlay");
     startDailySession();
   });
+  $("dailyRepeat").addEventListener("click", function(){
+    closeOverlay("dailyOverlay");
+    repeatDailySession();
+  });
   $("dailyClose").addEventListener("click", function(){ closeOverlay("dailyOverlay"); });
   $("menuDaily").addEventListener("click", function(){
     closeOverlay("menuOverlay");
@@ -3328,12 +3545,118 @@
 
   refreshDailyBanner();
 
+  // ---------- Appearance ----------
+  var THEME_KEY = "myWordsApp.theme";
+  var themeMode = (function(){
+    var t = localStorage.getItem(THEME_KEY);
+    return (t === "light" || t === "dark" || t === "auto") ? t : "auto";
+  })();
+  var darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+  function applyTheme(){
+    var dark = (themeMode === "dark") || (themeMode === "auto" && darkQuery && darkQuery.matches);
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute("content", dark ? "#202124" : "#FFFFFF");
+  }
+  function setTheme(mode){
+    themeMode = mode;
+    try{ localStorage.setItem(THEME_KEY, mode); }catch(e){}
+    applyTheme();
+    syncThemeButtons();
+  }
+  function syncThemeButtons(){
+    var seg = $("themeSeg");
+    if(!seg) return;
+    seg.querySelectorAll("button").forEach(function(b){
+      b.classList.toggle("active", b.getAttribute("data-theme") === themeMode);
+    });
+  }
+  applyTheme();
+  if(darkQuery && darkQuery.addEventListener){
+    darkQuery.addEventListener("change", function(){ if(themeMode === "auto") applyTheme(); });
+  }
+
+  // ---------- Undo delete ----------
+  // Deleting a word throws away its whole review history, so it gets a grace period.
+  var pendingUndo = null, undoTimer = null;
+  function offerUndo(entry, index){
+    pendingUndo = { entry:entry, index:index };
+    var bar = $("undoBar");
+    $("undoText").textContent = 'נמחקה: ' + entry.en;
+    bar.classList.add("show");
+    if(undoTimer) clearTimeout(undoTimer);
+    undoTimer = setTimeout(function(){ bar.classList.remove("show"); pendingUndo = null; }, 7000);
+  }
+  $("undoBtn").addEventListener("click", function(){
+    if(!pendingUndo) return;
+    words.splice(Math.min(pendingUndo.index, words.length), 0, pendingUndo.entry);
+    saveWords(words);
+    renderChips(); render();
+    pendingUndo = null;
+    $("undoBar").classList.remove("show");
+    showToast("המילה הוחזרה");
+  });
+
+  // ---------- Automatic backup ----------
+  // A second copy inside the browser, kept a day behind the live list. It survives the
+  // mistakes the live data doesn't: a bad import, a bulk delete, a wrong edit.
+  var AUTO_BACKUP_KEY = "myWordsApp.autoBackup";
+  function maybeAutoBackup(){
+    if(!words.length) return;
+    try{
+      var raw = localStorage.getItem(AUTO_BACKUP_KEY);
+      var prev = raw ? JSON.parse(raw) : null;
+      // Refresh once a day, and never overwrite a bigger backup with a suddenly tiny list —
+      // that's exactly the situation a backup exists for.
+      if(prev && prev.date === todayKey()) return;
+      if(prev && prev.words && prev.words.length > words.length * 2 && words.length < 5) return;
+      localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify({ date:todayKey(), words:words }));
+    }catch(e){}
+  }
+  function readAutoBackup(){
+    try{
+      var raw = localStorage.getItem(AUTO_BACKUP_KEY);
+      var b = raw ? JSON.parse(raw) : null;
+      return (b && Array.isArray(b.words)) ? b : null;
+    }catch(e){ return null; }
+  }
+  function renderRestore(){
+    var b = readAutoBackup();
+    if(!b){
+      $("restoreBody").innerHTML = '<div class="quiz-empty">עדיין אין גיבוי אוטומטי.<br>הוא נוצר אוטומטית פעם ביום.</div>';
+      return;
+    }
+    $("restoreBody").innerHTML =
+      '<div class="stat-grid">' +
+        '<div class="stat-card"><span class="stat-num">' + b.words.length + '</span><span class="stat-cap">מילים בגיבוי</span></div>' +
+        '<div class="stat-card"><span class="stat-num">' + words.length + '</span><span class="stat-cap">מילים כרגע</span></div>' +
+      '</div>' +
+      '<div class="bulk-example">הגיבוי נשמר בתאריך ' + escapeHtml(b.date) + '. השחזור מוסיף מילים חסרות בלבד — מילים קיימות לא ידרסו.</div>' +
+      '<button type="button" class="add-btn" id="restoreRun">שחזור המילים החסרות</button>' +
+      '<div class="hint" style="text-align:center;margin-top:10px">הגיבוי הזה נמצא בדפדפן. לגיבוי אמיתי השתמשו בייצוא לקובץ.</div>';
+
+    $("restoreRun").addEventListener("click", function(){
+      var have = {};
+      words.forEach(function(w){ have[w.en.toLowerCase()] = true; });
+      var restored = 0;
+      b.words.forEach(function(raw){
+        if(have[String(raw.en || "").toLowerCase()]) return;
+        var e = normalizeEntry(raw);
+        if(e){ words.push(e); restored++; }
+      });
+      if(restored){ saveWords(words); renderChips(); render(); }
+      showToast(restored ? ("שוחזרו " + restored + " מילים") : "לא היו מילים חסרות");
+      closeOverlay("restoreOverlay");
+    });
+  }
+
   // ---------- Init ----------
   renderChips();
   render();
   updateAddButton();
+  maybeAutoBackup();   // a daily snapshot, taken after the list has loaded successfully
 })();
 </script>
 </body>
 </html>
-
