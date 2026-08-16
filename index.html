@@ -829,6 +829,17 @@
   </div>
 </div>
 
+<div class="overlay" id="importOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>ייבוא קובץ</h2>
+      <button class="close-x" id="importClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="importBody"></div>
+  </div>
+</div>
+
 <div class="overlay" id="helpOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -1149,7 +1160,7 @@
 
   // ---------- Validation ----------
   var VALID_ENGLISH = /^[A-Za-z][A-Za-z '\-]{0,39}$/;
-  var VALID_HEBREW = /^[\u0590-\u05FF0-9 ,'"\-.!?״׳]{0,60}$/;
+  var VALID_HEBREW = /^[\u0590-\u05FF0-9A-Za-z ,;:'"\-.!?()\/״׳]{0,90}$/;
   var VALID_CATEGORY = /^[A-Za-z\u0590-\u05FF0-9 \-]{0,20}$/;
 
   function sanitizeEnglish(raw){ var w = String(raw||"").trim().replace(/\s+/g," "); return VALID_ENGLISH.test(w) ? w : null; }
@@ -2541,6 +2552,90 @@
   $("exportBtnFooter").addEventListener("click", exportWords);
   $("importBtnFooter").addEventListener("click", function(){ $("importInput").click(); });
 
+  // Importing used to skip every word already in the list, which made a corrected file
+  // look like it did nothing. Now the file is compared against the list first, and the
+  // user decides whether to also apply the differences to words they already have.
+  var pendingImport = null;
+
+  // Fields that describe the word itself. Review progress is deliberately not in this
+  // list: the local schedule is what you have actually been practising.
+  var MERGE_FIELDS = ["he", "example", "phonetic", "category", "note", "freq"];
+
+  function analyzeImport(data){
+    var byEn = {};
+    words.forEach(function(w){ byEn[w.en.toLowerCase()] = w; });
+    var fresh = [], updates = [], counts = { he:0, example:0, other:0 }, skipped = 0, dropped = 0;
+
+    data.forEach(function(raw){
+      var entry = normalizeEntry(raw);
+      if(!entry){ skipped++; return; }
+      // A meaning the app refuses to store comes back empty — worth reporting rather than ignoring.
+      if(raw && raw.he && !entry.he) dropped++;
+      var existing = byEn[entry.en.toLowerCase()];
+      if(!existing){ fresh.push(entry); return; }
+
+      var changes = {};
+      MERGE_FIELDS.forEach(function(k){
+        var incoming = entry[k], current = existing[k];
+        if(k === "freq"){
+          if(incoming >= 0 && current < 0) changes[k] = incoming;   // only fill a missing value
+          return;
+        }
+        if(!incoming) return;                 // never blank out what you already have
+        if(incoming === current) return;
+        changes[k] = incoming;
+        if(k === "he") counts.he++;
+        else if(k === "example") counts.example++;
+        else counts.other++;
+      });
+      if(Object.keys(changes).length) updates.push({ target:existing, changes:changes });
+    });
+    return { fresh:fresh, updates:updates, counts:counts, skipped:skipped, dropped:dropped };
+  }
+
+  function renderImportSummary(res){
+    var lines = [];
+    if(res.fresh.length) lines.push('<div class="about-row"><span>מילים חדשות</span><b>' + res.fresh.length + '</b></div>');
+    if(res.counts.he) lines.push('<div class="about-row"><span>תרגומים שונים</span><b>' + res.counts.he + '</b></div>');
+    if(res.counts.example) lines.push('<div class="about-row"><span>משפטי דוגמה חדשים</span><b>' + res.counts.example + '</b></div>');
+    if(res.counts.other) lines.push('<div class="about-row"><span>שדות נוספים</span><b>' + res.counts.other + '</b></div>');
+    var problems = "";
+    if(res.skipped) problems += "<div>" + res.skipped + " שורות בקובץ לא נקראו (מילה באנגלית חסרה או לא תקינה).</div>";
+    if(res.dropped) problems += "<div>" + res.dropped + " פירושים הכילו תווים שאינם נתמכים ולא נשמרו.</div>";
+
+    if(!lines.length){
+      $("importBody").innerHTML = '<div class="quiz-empty">הקובץ זהה למה שכבר יש לך.<br>אין מה לעדכן.</div>';
+      return;
+    }
+    $("importBody").innerHTML =
+      '<div class="about-rows">' + lines.join("") + '</div>' +
+      (problems ? '<div class="hint warn" style="margin-bottom:10px">' + problems + '</div>' : '') +
+      '<div class="bulk-example">העדכון לא נוגע בהתקדמות שלך: המרווחים, הרמות והרצף נשמרים כפי שהם. ' +
+        'שדה ריק בקובץ לא ימחק מידע קיים.</div>' +
+      (res.updates.length ? '<button type="button" class="add-btn" id="importMerge">הוספה ועדכון (' + (res.fresh.length + res.updates.length) + ' מילים)</button>' : '') +
+      (res.fresh.length ? '<button type="button" class="text-btn" id="importOnlyNew">להוסיף רק את ' + res.fresh.length + ' החדשות</button>' : '');
+
+    if(res.updates.length) $("importMerge").addEventListener("click", function(){ applyImport(true); });
+    if(res.fresh.length) $("importOnlyNew").addEventListener("click", function(){ applyImport(false); });
+  }
+
+  function applyImport(withUpdates){
+    if(!pendingImport) return;
+    var res = pendingImport, updated = 0;
+    res.fresh.forEach(function(entry){ entry.id = uid(); words.unshift(entry); });
+    if(withUpdates){
+      res.updates.forEach(function(u){
+        Object.keys(u.changes).forEach(function(k){ u.target[k] = u.changes[k]; });
+        updated++;
+      });
+    }
+    saveWords(words);
+    renderChips(); render();
+    closeOverlay("importOverlay");
+    pendingImport = null;
+    showToast("נוספו " + res.fresh.length + " · עודכנו " + updated);
+  }
+
   $("importInput").addEventListener("change", function(e){
     var file = e.target.files && e.target.files[0];
     if(!file) return;
@@ -2549,20 +2644,10 @@
       try{
         var data = JSON.parse(String(reader.result));
         if(!Array.isArray(data)) throw new Error("bad format");
-        var added = 0;
-        data.forEach(function(raw){
-          var entry = normalizeEntry(raw);
-          if(!entry) return;
-          var exists = words.some(function(w){ return w.en.toLowerCase() === entry.en.toLowerCase(); });
-          if(exists) return;
-          entry.id = uid();
-          words.unshift(entry);
-          added++;
-        });
-        saveWords(words);
-        renderChips(); render();
-        celebrateIfMilestone(words.length);
-        menuHint.textContent = "יובאו " + added + " מילים חדשות.";
+        pendingImport = analyzeImport(data);
+        closeOverlay("menuOverlay");
+        renderImportSummary(pendingImport);
+        openOverlay("importOverlay");
       }catch(err){
         menuHint.textContent = "הקובץ לא תקין. יש לייבא קובץ שיוצא מהאפליקציה הזו.";
         menuHint.className = "hint warn";
@@ -2571,6 +2656,7 @@
     reader.readAsText(file);
     e.target.value = "";
   });
+  $("importClose").addEventListener("click", function(){ pendingImport = null; closeOverlay("importOverlay"); });
 
   // ---------- Footer collapse: manual toggle + auto-hide while scrolling the list ----------
   var footerEl = $("footerEl"), footerToggleLabel = $("footerToggleLabel"), mainScroll = $("mainScroll");
@@ -3840,3 +3926,4 @@
 </script>
 </body>
 </html>
+
