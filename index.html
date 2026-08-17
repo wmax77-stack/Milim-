@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://api.dictionaryapi.dev https://api.datamuse.com https://api.mymemory.translated.net https://translate.googleapis.com https://en.wikipedia.org https://lingva.ml https://tatoeba.org; object-src 'none'; base-uri 'none'; form-action 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://api.dictionaryapi.dev https://api.datamuse.com https://api.mymemory.translated.net https://translate.googleapis.com https://en.wikipedia.org https://he.wikipedia.org https://lingva.ml https://tatoeba.org; object-src 'none'; base-uri 'none'; form-action 'none';">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="מילון שלי">
@@ -213,6 +213,21 @@
   .listen-he{ direction:rtl; font-size:18px; font-weight:700; color:var(--brand); }
   .listen-hint{ font-size:13px; color:var(--ink-faint); }
   .text-btn.on{ color:var(--warn); }
+
+  .backup-banner{ background:var(--warn-tint); }
+  .backup-banner .daily-banner-text strong{ color:var(--warn); }
+  #backupBannerGo{ border:none; background:var(--warn); color:#fff; font-size:13px; font-weight:700;
+    padding:8px 16px; border-radius:var(--r-full); cursor:pointer; flex-shrink:0; }
+  .mail-row{ display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+  .mail-row input{ width:100%; font-size:14px; padding:11px 13px; border-radius:var(--r-sm);
+    border:1.5px solid var(--line); background:var(--surface); color:var(--ink); outline:none;
+    font-family:inherit; direction:ltr; text-align:start; }
+  .mail-row input:focus{ border-color:var(--brand); }
+  .mail-actions{ display:flex; flex-direction:column; gap:8px; margin-bottom:6px; }
+  .mail-actions .add-btn{ margin:0; }
+  .setup-code{ direction:ltr; text-align:start; font-family:var(--mono); font-size:10.5px; line-height:1.6;
+    background:var(--bg); border-radius:var(--r-xs); padding:11px 12px; margin:8px 0; overflow-x:auto;
+    white-space:pre; }
 
   .backfill-bar{ height:7px; border-radius:var(--r-full); background:var(--line); overflow:hidden; margin-bottom:8px; }
   .backfill-fill{ height:100%; width:0%; background:var(--brand); border-radius:var(--r-full); transition:width .3s ease; }
@@ -708,6 +723,16 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </div>
+    <div class="daily-banner backup-banner" id="backupBanner">
+      <div class="daily-banner-text">
+        <strong>הגיע הזמן לגבות</strong>
+        <span id="backupBannerSub"></span>
+      </div>
+      <button type="button" id="backupBannerGo">גבה</button>
+      <button type="button" class="daily-banner-x" id="backupBannerSkip" aria-label="לא עכשיו">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
     <ul id="wordList"></ul>
     <div class="empty" id="emptyState">
       <span class="glyph">🔤</span>
@@ -920,6 +945,17 @@
       <button class="close-x" id="aboutClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="aboutBody"></div>
+  </div>
+</div>
+
+<div class="overlay" id="backupOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title-row">
+      <h2>גיבוי הרשימה</h2>
+      <button class="close-x" id="backupClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div id="backupBody"></div>
   </div>
 </div>
 
@@ -1161,6 +1197,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 10l5 5 5-5M4 21h16"/></svg>
         ייצוא הרשימה לקובץ גיבוי
       </button>
+      <button type="button" id="menuBackup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+        <span class="menu-text">גיבוי שבועי<em id="backupMenuSub"></em></span>
+      </button>
       <button type="button" id="menuRestore">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
         <span class="menu-text">שחזור מגיבוי אוטומטי<em id="restoreMenuSub"></em></span>
@@ -1384,6 +1424,18 @@
     "רצף ימים":"Day streak", "רצף נוכחי":"Current streak", "מתוכן נלמדו":"of them learned",
     "פותח על ידי":"Created by", "ייצוא אחרון":"Last export", "טרם בוצע":"never",
     "מקורות המידע":"Data sources",
+    "גיבוי הרשימה":"Backing up your list", "גיבוי שבועי":"Weekly backup",
+    "הגיע הזמן לגבות":"Time to back up", "גבה":"Back up",
+    "הורדת קובץ הגיבוי":"Download the backup file",
+    "הקובץ נשמר במכשיר ומכיל הכל: המילים, הפירושים, ההערות והיסטוריית החזרות. לשחזור — תפריט ← ייבוא.":"The file is saved on your device and holds everything: words, meanings, notes and review history. To restore — menu → Import.",
+    "כדאי להעביר עותק למקום שנשמר מחוץ למכשיר: Drive, מייל לעצמך, או וואטסאפ לעצמך.":"Keep a copy somewhere off the device: Drive, an email to yourself, or a message to yourself.",
+    "מילים לגיבוי":"words to back up", "גיבוי אחרון":"Last backup", "תזכורת":"Reminder",
+    "כל 7 ימים":"Every 7 days", "כבויה":"Off",
+    "להזכיר לי כל שבוע":"Remind me every week",
+    "התזכורת מופיעה בפתיחת האפליקציה, שבוע אחרי הגיבוי האחרון":"The reminder appears when you open the app, a week after the last backup",
+    "שיתוף הקובץ (Gmail, וואטסאפ, Drive)":"Share the file (Gmail, WhatsApp, Drive)",
+    "הורדת הקובץ למכשיר":"Download the file", "שולח...":"Sending...",
+    "הקובץ ירד למכשיר ✓":"File downloaded ✓", "השיתוף הושלם ✓":"Shared ✓",
     "איטי / רגיל":"Slow / Normal", "הכל / בתרגול / נלמדו":"All / Learning / Learned",
     "המילה החסרה":"The missing word", "הקלד/י באנגלית":"Type in Hebrew",
     "הקלדה":"Typing", "דיבור":"Voice", "גיבוי אוטומטי":"Automatic backup",
@@ -2001,6 +2053,7 @@
     countBadge.textContent = words.length;
     renderProgress();
     if(typeof refreshDailyBanner === "function") refreshDailyBanner();
+    if(typeof refreshBackupBanner === "function") refreshBackupBanner();
     emptyEl.style.display = visible.length ? "none" : "block";
     emptyEl.querySelector ? null : null;
 
@@ -3795,6 +3848,10 @@
     syncThemeButtons();
     syncLangButtons();
     $("aboutMenuSub").textContent = "גרסה " + APP_VERSION + " · " + APP_AUTHOR;
+    var d = daysSinceBackup();
+    $("backupMenuSub").textContent = lastBackup()
+      ? (d === 0 ? "גובה היום ✓" : "לפני " + d + " ימים" + (d >= 7 ? " · הגיע הזמן" : ""))
+      : "טרם בוצע גיבוי";
     var backup = readAutoBackup();
     $("restoreMenuSub").textContent = backup ? (backup.words.length + " מילים · " + backup.date) : "אין גיבוי עדיין";
     var missing = wordsMissingInfo().length;
@@ -4097,6 +4154,7 @@
   // Re-check on a timer and whenever the app comes back into view, so the banner appears
   // at the right moment even if the app was left open.
   setInterval(refreshDailyBanner, 60000);
+  setInterval(function(){ if(typeof refreshBackupBanner === "function") refreshBackupBanner(); }, 3600000);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) refreshDailyBanner(); });
 
   // ---------- Daily settings sheet ----------
@@ -4518,6 +4576,113 @@
   });
 
   applyLanguage();
+
+  // ---------- Weekly backup reminder ----------
+  // The list lives in this browser only, so the weekly nudge and a one-tap export are what
+  // stand between the user and losing it. Everything here stays on the device.
+  var WEEKLY_KEY = "myWordsApp.weekly";
+  var BACKUP_EVERY_DAYS = 7;
+
+  var weekly = (function(){
+    var def = { enabled:true, snoozed:"" };
+    try{
+      var raw = JSON.parse(localStorage.getItem(WEEKLY_KEY) || "{}");
+      if(typeof raw.enabled === "boolean") def.enabled = raw.enabled;
+      if(typeof raw.snoozed === "string") def.snoozed = raw.snoozed.slice(0,10);
+    }catch(e){}
+    return def;
+  })();
+  function saveWeekly(){ try{ localStorage.setItem(WEEKLY_KEY, JSON.stringify(weekly)); }catch(e){} }
+
+  function backupPayload(){ return JSON.stringify(words, null, 1); }
+  function backupFilename(){ return "milim-backup-" + todayKey() + ".json"; }
+
+  function backupIsDue(){
+    if(!weekly.enabled || !words.length) return false;
+    if(weekly.snoozed === todayKey()) return false;
+    return daysSinceBackup() >= BACKUP_EVERY_DAYS;
+  }
+
+  var backupBanner = $("backupBanner");
+  function refreshBackupBanner(){
+    if(!backupBanner) return;
+    var due = backupIsDue();
+    backupBanner.classList.toggle("show", due);
+    if(due){
+      var d = daysSinceBackup();
+      $("backupBannerSub").textContent = lastBackup()
+        ? ("עברו " + d + " ימים מהגיבוי האחרון · " + words.length + " מילים")
+        : ("עדיין לא גיבית · " + words.length + " מילים");
+    }
+  }
+
+  // --- the share sheet, so the file can go to Drive, Gmail or WhatsApp without leaving the app ---
+  function canShareBackup(){
+    if(!navigator.share || !navigator.canShare || !window.File) return false;
+    try{
+      var f = new File(["{}"], "t.json", { type:"application/json" });
+      return navigator.canShare({ files:[f] });
+    }catch(e){ return false; }
+  }
+  async function shareBackup(statusEl){
+    try{
+      var file = new File([backupPayload()], backupFilename(), { type:"application/json" });
+      await navigator.share({ files:[file], title:"גיבוי המילים שלי", text:"גיבוי של " + words.length + " מילים" });
+      markBackup(); refreshBackupBanner();
+      statusEl.textContent = "השיתוף הושלם ✓";
+    }catch(e){ /* the user closing the share sheet is not an error */ }
+  }
+
+  // --- the local file: always available, works offline ---
+  function downloadBackup(statusEl){
+    exportWords();
+    markBackup(); refreshBackupBanner();
+    if(statusEl) statusEl.textContent = "הקובץ ירד למכשיר ✓";
+  }
+
+  function renderBackupSheet(){
+    var days = daysSinceBackup();
+    $("backupBody").innerHTML =
+      '<div class="about-rows">' +
+        '<div class="about-row"><span>מילים לגיבוי</span><b>' + words.length + '</b></div>' +
+        '<div class="about-row"><span>גיבוי אחרון</span><b>' + (lastBackup() ? escapeHtml(lastBackup()) : "טרם בוצע") + '</b></div>' +
+        '<div class="about-row"><span>תזכורת</span><b>' + (weekly.enabled ? "כל 7 ימים" : "כבויה") + '</b></div>' +
+      '</div>' +
+
+      '<label class="switch-row" for="weeklyEnabled">' +
+        '<span><span class="switch-title">להזכיר לי כל שבוע</span>' +
+        '<span class="switch-sub">התזכורת מופיעה בפתיחת האפליקציה, שבוע אחרי הגיבוי האחרון</span></span>' +
+        '<input type="checkbox" id="weeklyEnabled"' + (weekly.enabled ? " checked" : "") + '>' +
+        '<span class="switch-track"><span class="switch-knob"></span></span>' +
+      '</label>' +
+
+      '<div class="mail-actions">' +
+        '<button type="button" class="add-btn" id="backupDownload">הורדת קובץ הגיבוי</button>' +
+        (canShareBackup() ? '<button type="button" class="text-btn" id="backupShare">שיתוף הקובץ (Gmail, וואטסאפ, Drive)</button>' : '') +
+      '</div>' +
+      '<div class="hint" id="backupStatus">' + (days >= BACKUP_EVERY_DAYS && lastBackup() ? "עברו " + days + " ימים מהגיבוי האחרון." : "") + '</div>' +
+
+      '<div class="bulk-example" style="margin-top:14px">הקובץ נשמר במכשיר ומכיל הכל: המילים, הפירושים, ' +
+        'ההערות והיסטוריית החזרות. לשחזור — תפריט ← ייבוא.<br>' +
+        'כדאי להעביר עותק למקום שנשמר מחוץ למכשיר: Drive, מייל לעצמך, או וואטסאפ לעצמך.</div>';
+
+    var status = $("backupStatus");
+    $("weeklyEnabled").addEventListener("change", function(){
+      weekly.enabled = this.checked; weekly.snoozed = ""; saveWeekly();
+      refreshBackupBanner();
+    });
+    $("backupDownload").addEventListener("click", function(){ downloadBackup(status); });
+    if(canShareBackup()) $("backupShare").addEventListener("click", function(){ shareBackup(status); });
+  }
+
+  $("menuBackup").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderBackupSheet(); openOverlay("backupOverlay"); });
+  $("backupClose").addEventListener("click", function(){ closeOverlay("backupOverlay"); });
+  $("backupBannerGo").addEventListener("click", function(){ renderBackupSheet(); openOverlay("backupOverlay"); });
+  $("backupBannerSkip").addEventListener("click", function(){
+    weekly.snoozed = todayKey(); saveWeekly();
+    backupBanner.classList.remove("show");
+  });
+  refreshBackupBanner();
 
   // ---------- Init ----------
   renderChips();
