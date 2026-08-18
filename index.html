@@ -1789,9 +1789,12 @@
   });
 
   // Every spelling this word might appear as in a sentence.
+  // Entries are not always a single word — "ice cream", "a banana", "to run" all occur,
+  // especially from speech input — so the space has to survive into the pattern.
   function wordForms(word){
-    var w = String(word || "").toLowerCase().replace(/[^a-z]/g, "");
+    var w = String(word || "").toLowerCase().replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
     if(!w) return [];
+    if(w.indexOf(" ") !== -1) return [w];        // a phrase has no irregular forms of its own
     var base = IRREGULAR_BASE[w] || w;
     var out = [w, base].concat(IRREGULAR_FORMS[base] || []);
     return out.filter(function(v, i, arr){ return v && arr.indexOf(v) === i; });
@@ -1816,8 +1819,12 @@
     if(/[^aeiou][aeiou][^aeiouwxy]$/.test(f)) alts.push(f + f.slice(-1) + "(?:ing|ed)");
     return alts.join("|");
   }
+  // Each token of a phrase gets its own inflection pattern, joined by whitespace.
+  function phrasePattern(form){
+    return form.split(" ").filter(Boolean).map(formPattern).join("\\s+");
+  }
   function wordRegex(word){
-    var alts = wordForms(word).map(formPattern).join("|");
+    var alts = wordForms(word).map(phrasePattern).join("|");
     // Longest match first so "taken" wins over "take".
     return new RegExp("\\b(?:" + alts + ")\\b", "i");
   }
@@ -1826,9 +1833,13 @@
   // "בבית" for "בית". Nikud is stripped from both sides before comparing.
   function stripNikud(s){ return String(s||"").replace(/[\u0591-\u05C7]/g, ""); }
   function hebrewWordRegex(word){
-    var w = stripNikud(word).replace(/[^\u0590-\u05FF]/g, "");
-    if(w.length < 2) return null;
-    return new RegExp("(?:^|[\\s\u05be.,!?;:\"'()\\-])[\u05d5\u05d4\u05d1\u05db\u05dc\u05de\u05e9]{0,2}" + w + "(?:[\u05d9\u05dd\u05d5\u05ea\u05d4]{0,2})(?=$|[\\s\u05be.,!?;:\"'()\\-])");
+    var w = stripNikud(word).replace(/[^\u0590-\u05FF ]/g, " ").replace(/\s+/g, " ").trim();
+    if(w.replace(/ /g, "").length < 2) return null;
+    var tokens = w.split(" ").filter(Boolean).map(function(t, i){
+      var prefix = (i === 0) ? "[\u05d5\u05d4\u05d1\u05db\u05dc\u05de\u05e9]{0,2}" : "[\u05d5\u05d4\u05d1\u05db\u05dc\u05de\u05e9]{0,1}";
+      return prefix + t + "[\u05d9\u05dd\u05d5\u05ea\u05d4]{0,2}";
+    }).join("\\s+");
+    return new RegExp("(?:^|[\\s\u05be.,!?;:\"'()\\-])" + tokens + "(?=$|[\\s\u05be.,!?;:\"'()\\-])");
   }
   function targetWordRegex(word){
     return M.target === "en" ? wordRegex(word) : hebrewWordRegex(word);
@@ -3660,6 +3671,19 @@
     });
   }
 
+  // Recognition does not always stop on its own once a result arrives — on iOS the
+  // microphone indicator can stay on. Detaching the handlers and aborting is the only
+  // way to be sure it is really closed.
+  function stopRecognition(rec){
+    if(!rec) return null;
+    try{ rec.onresult = null; rec.onend = null; rec.onerror = null; }catch(e){}
+    try{ if(rec.abort) rec.abort(); else rec.stop(); }catch(e){}
+    return null;
+  }
+  function clearMicIndicator(){
+    document.querySelectorAll(".pron-mic.listening").forEach(function(el){ el.classList.remove("listening"); });
+  }
+
   // ---------- Practice mode: pronunciation check ----------
   var pronQueue = [], pronIndex = 0, pronRec = null;
   var pronBody = $("pronBody");
@@ -3708,12 +3732,13 @@
     var micBtn = $("pronMic"), result = $("pronResult");
     $("pronListen").addEventListener("click", function(){ speakWord(entry.en, "female", null); });
     $("pronNext").addEventListener("click", function(){
-      if(pronRec){ try{ pronRec.stop(); }catch(e){} pronRec = null; }
+      pronRec = stopRecognition(pronRec);
+      clearMicIndicator();
       pronIndex++; renderPronunciation();
     });
 
     micBtn.addEventListener("click", function(){
-      if(pronRec){ try{ pronRec.stop(); }catch(e){} pronRec = null; micBtn.classList.remove("listening"); return; }
+      if(pronRec){ pronRec = stopRecognition(pronRec); micBtn.classList.remove("listening"); return; }
       var rec = new SpeechRec();
       pronRec = rec;
       rec.lang = M.speech;
@@ -3726,6 +3751,8 @@
       rec.onresult = function(ev){
         var heard = [];
         for(var i=0;i<ev.results[0].length;i++) heard.push(ev.results[0][i].transcript);
+        pronRec = stopRecognition(rec);
+        micBtn.classList.remove("listening");
         var target = normalizeAnswer(entry.en);
         var match = heard.some(function(h){ return normalizeAnswer(h) === target; });
         result.className = "pron-result " + (match ? "ok" : "no");
@@ -3743,7 +3770,7 @@
           ? "אין הרשאה למיקרופון. יש לאשר בהגדרות הדפדפן."
           : "לא הצלחתי לשמוע. נסו שוב.";
       };
-      rec.onend = function(){ micBtn.classList.remove("listening"); pronRec = null; };
+      rec.onend = function(){ clearMicIndicator(); pronRec = null; };
       try{ rec.start(); }
       catch(e){ micBtn.classList.remove("listening"); result.textContent = "לא ניתן להפעיל את המיקרופון."; }
     });
@@ -3872,7 +3899,8 @@
   $("menuWotd").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderWotd(); openOverlay("wotdOverlay"); });
   $("typeClose").addEventListener("click", function(){ closeOverlay("typeOverlay"); render(); });
   $("pronClose").addEventListener("click", function(){
-    if(pronRec){ try{ pronRec.stop(); }catch(e){} pronRec = null; }
+    pronRec = stopRecognition(pronRec);
+    clearMicIndicator();
     closeOverlay("pronOverlay"); render();
   });
   $("statsClose").addEventListener("click", function(){ closeOverlay("statsOverlay"); });
@@ -3900,16 +3928,26 @@
     if(state.word){
       $("voiceConfirm").addEventListener("click", async function(){
         var btn = this;
+        voiceRec = stopRecognition(voiceRec);   // never leave the microphone open while saving
+        clearMicIndicator();
         btn.disabled = true; btn.textContent = "מוסיף...";
         var res = await addWordWithTranslation(state.word);
         if(res === "exists"){ renderVoiceAdd({ word:state.word, sub:"המילה כבר ברשימה שלך" }); return; }
         showToast('נוספה: ' + state.word);
-        renderVoiceAdd({ sub:"אפשר להמשיך למילה הבאה" });
+        renderVoiceAdd({ sub:"מחפש משפט דוגמה ותעתיק..." });
+        // The lookups run in the background, so report what came back rather than leaving it silent.
+        var added = words.find(function(w){ return w.en.toLowerCase() === state.word.toLowerCase(); });
+        setTimeout(function(){
+          if(!added) return;
+          renderVoiceAdd({ sub: added.example
+            ? ('נוספה עם משפט דוגמה ✓ · אפשר להמשיך למילה הבאה')
+            : ('נוספה. לא נמצא משפט דוגמה — אפשר להשלים דרך "השלמת מידע חסר"') });
+        }, 4000);
       });
     }
 
     mic.addEventListener("click", function(){
-      if(voiceRec){ try{ voiceRec.stop(); }catch(e){} voiceRec = null; return; }
+      if(voiceRec){ voiceRec = stopRecognition(voiceRec); mic.classList.remove("listening"); return; }
       var rec = new SpeechRec();
       voiceRec = rec;
       rec.lang = M.speech; rec.interimResults = false; rec.maxAlternatives = 3;
@@ -3917,7 +3955,9 @@
       heard.textContent = "—";
       sub.textContent = "מקשיב...";
       rec.onresult = function(ev){
-        var text = (ev.results[0][0].transcript || "").trim();
+        var text = tidyTranscript(ev.results[0][0].transcript || "");
+        voiceRec = stopRecognition(rec);      // one word is all this screen needs
+        clearMicIndicator();
         var word = sanitizeWord(text);
         if(!word){ renderVoiceAdd({ sub:"לא הצלחתי לזהות מילה באנגלית. נסו שוב." }); return; }
         renderVoiceAdd({ word:word, sub:"זו המילה הנכונה?" });
@@ -3928,10 +3968,22 @@
           ? "אין הרשאה למיקרופון. יש לאשר בהגדרות הדפדפן."
           : "לא הצלחתי לשמוע. נסו שוב.";
       };
-      rec.onend = function(){ mic.classList.remove("listening"); voiceRec = null; };
+      rec.onend = function(){ clearMicIndicator(); voiceRec = null; };   // the button may have been re-rendered
       try{ rec.start(); }
       catch(e){ mic.classList.remove("listening"); sub.textContent = "לא ניתן להפעיל את המיקרופון."; }
     });
+  }
+
+  // Speech recognition returns a spoken phrase, not a dictionary entry: "a banana",
+  // "The deadline", "to run." Trimming it to the word itself is what makes the lookups work.
+  function tidyTranscript(raw){
+    var t = String(raw || "").trim().replace(/[.,!?;:]+$/, "").replace(/\s+/g, " ");
+    if(M.target === "en"){
+      t = t.toLowerCase().replace(/^(a|an|the)\s+/, "").replace(/^to\s+(?=[a-z]{2,})/, "");
+    } else {
+      t = t.replace(/^(\u05d4|\u05d5)(?=[\u0590-\u05FF]{3,})/, "");   // a leading ה/ו glued on by the recogniser
+    }
+    return t;
   }
 
   // Adds a word and fills the Hebrew meaning from the translation sources.
@@ -4040,7 +4092,8 @@
   });
   $("pasteClose").addEventListener("click", function(){ closeOverlay("pasteOverlay"); });
   $("voiceAddClose").addEventListener("click", function(){
-    if(voiceRec){ try{ voiceRec.stop(); }catch(e){} voiceRec = null; }
+    voiceRec = stopRecognition(voiceRec);
+    clearMicIndicator();
     closeOverlay("voiceAddOverlay");
   });
   $("menuVoiceAdd").addEventListener("click", function(){
