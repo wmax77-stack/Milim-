@@ -1487,6 +1487,7 @@
     [/^(\d+) מילים מחכות לחזרה$/, "$1 words due for review"],
     [/^הכל מעודכן כרגע$/, "All caught up"],
     [/^(\d+) ימים ברצף$/, "$1 day streak"],
+    [/^השיא שלך: (\d+) ימים$/, "Your best: $1 days"],
     [/^(\d+) מילים · (\d{4}-\d{2}-\d{2})$/, "$1 words · $2"],
     [/^(\d+) מילים חסר להן מידע$/, "$1 words are missing information"],
     [/^הכל מושלם$/, "Everything is complete"],
@@ -1723,9 +1724,26 @@
     }catch(e){ return []; }
   }
 
+  var MAX_WORDS = 1000;
+  var storageWarned = false;
   function saveWords(list){
-    try{ localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(list.slice(0,1000))); }
-    catch(e){ console.warn("Could not persist words:", e); }
+    // Silently dropping words past the cap, or silently failing to save at all, is the
+    // worst thing this app could do — the user would only find out when the data is gone.
+    if(list.length > MAX_WORDS && !storageWarned){
+      storageWarned = true;
+      showToast("הרשימה הגיעה ל-" + MAX_WORDS + " מילים — כדאי לייצא ולפצל");
+    }
+    try{
+      localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(list.slice(0, MAX_WORDS)));
+      return true;
+    }catch(e){
+      console.warn("Could not persist words:", e);
+      if(!storageWarned){
+        storageWarned = true;
+        showToast("השמירה נכשלה — אין מקום פנוי בדפדפן. כדאי לייצא גיבוי מיד.");
+      }
+      return false;
+    }
   }
 
   var words = loadWords();
@@ -1817,7 +1835,9 @@
     if(/e$/.test(f)) alts.push(f.slice(0, -1) + "(?:ing|ed|es)");
     if(/y$/.test(f)) alts.push(f.slice(0, -1) + "i(?:es|ed|er|est)");
     if(/[^aeiou][aeiou][^aeiouwxy]$/.test(f)) alts.push(f + f.slice(-1) + "(?:ing|ed)");
-    return alts.join("|");
+    // The group matters: without it, "ice|ic..." + "\s+cream" would split the whole phrase
+    // at the first alternation and match only "ice".
+    return "(?:" + alts.join("|") + ")";
   }
   // Each token of a phrase gets its own inflection pattern, joined by whitespace.
   function phrasePattern(form){
@@ -1859,8 +1879,13 @@
     var t = String(raw || "").trim().replace(/\s+/g, " ");
     if(!t) return "";
     if(t.length > 120 || t.length < 6) return "";               // too long to read at a glance, or not a sentence
-    if(!/^[A-Za-z0-9"'(]/.test(t)) return "";                    // must start like an English sentence
-    if(/[\u0590-\u05FF\u0600-\u06FF\u4E00-\u9FFF]/.test(t)) return ""; // not English
+    if(M.target === "en"){
+      if(!/^[A-Za-z0-9"'(]/.test(t)) return "";                  // must start like an English sentence
+      if(/[\u0590-\u05FF\u0600-\u06FF\u4E00-\u9FFF]/.test(t)) return "";
+    } else {
+      if(!/[\u0590-\u05FF]/.test(t)) return "";                  // must actually be Hebrew
+      if(/[A-Za-z]{3,}/.test(t)) return "";
+    }
     if(!sentenceContainsWord(t, word)) return "";
     if(M.target === "en") t = t.charAt(0).toUpperCase() + t.slice(1);
     if(!/[.!?]$/.test(t)) t += ".";
@@ -1957,6 +1982,12 @@
   }
   if("speechSynthesis" in window) ensureVoices();
 
+  var speechGen = 0;
+  function stopSpeech(){
+    speechGen++;                       // anything already queued becomes stale
+    if(window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+
   async function speakText(text, gender, btnEl){
     if(!("speechSynthesis" in window)){
       showToast("הדפדפן הזה לא תומך בהקראה קולית");
@@ -1971,7 +2002,9 @@
 
     // Speaking immediately after cancel() is unreliable — several engines drop the utterance
     // or fall back to default settings. A short gap lets the queue settle first.
+    var gen = speechGen;
     setTimeout(function(){
+      if(gen !== speechGen) return;    // the user closed or switched in the meantime
       var utter = new SpeechSynthesisUtterance(text);
       var voice = (gender === "male") ? (cachedMale || cachedFemale) : (cachedFemale || cachedMale);
       // Assign the voice first: some engines reset rate/pitch when the voice changes.
@@ -2559,7 +2592,7 @@
     speechRate = parseFloat(btn.getAttribute("data-rate"));
     try{ localStorage.setItem("myWordsApp.rate", String(speechRate)); }catch(e){}
     [speedSlow, speedNormal].forEach(function(b){ b.classList.toggle("active", b === btn); });
-    window.speechSynthesis && window.speechSynthesis.cancel(); // drop anything mid-sentence at the old rate
+    stopSpeech();   // drop anything mid-sentence at the old rate
   }
   speedSlow.addEventListener("click", function(){ setSpeed(speedSlow); });
   speedNormal.addEventListener("click", function(){ setSpeed(speedNormal); });
@@ -2568,10 +2601,27 @@
 
   // ---------- Overlay helpers ----------
   function openOverlay(id){ $(id).classList.add("open"); }
-  function closeOverlay(id){ $(id).classList.remove("open"); }
+  // Tapping the backdrop, pressing Escape and the X button must all run the same cleanup.
+  // Skipping it was leaving the microphone open and radio mode talking to an empty room.
+  var overlayCleanup = {};
+  function closeOverlay(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    var wasOpen = el.classList.contains("open");
+    el.classList.remove("open");
+    if(!wasOpen) return;
+    stopSpeech();
+    var fn = overlayCleanup[id];
+    if(fn){ try{ fn(); }catch(e){ console.warn("overlay cleanup failed:", id, e); } }
+  }
+  function closeTopOverlay(){
+    var open = document.querySelectorAll(".overlay.open");
+    if(open.length) closeOverlay(open[open.length - 1].id);
+  }
   document.querySelectorAll(".overlay").forEach(function(ov){
-    ov.addEventListener("click", function(e){ if(e.target === ov) ov.classList.remove("open"); });
+    ov.addEventListener("click", function(e){ if(e.target === ov) closeOverlay(ov.id); });
   });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape") closeTopOverlay(); });
 
   // ---------- Detail / edit sheet ----------
   var detailWordId = null;
@@ -2659,7 +2709,13 @@
       recordedChunks = [];
       mediaRecorder = new MediaRecorder(stream);
       mediaRecorder.ondataavailable = function(ev){ if(ev.data && ev.data.size) recordedChunks.push(ev.data); };
-      mediaRecorder.onstart = function(){ recordBtn.classList.add("recording"); recordLabel.textContent = "מקליט/ה... לחצ/י שוב לעצירה"; };
+      // Show the state as soon as recording is asked for. Waiting for onstart means that on
+      // any engine which fires it late (or not at all) the user records with no indication.
+      function showRecording(){
+        recordBtn.classList.add("recording");
+        recordLabel.textContent = "מקליט/ה... לחצ/י שוב לעצירה";
+      }
+      mediaRecorder.onstart = showRecording;
       mediaRecorder.onstop = function(){
         recordBtn.classList.remove("recording");
         stream.getTracks().forEach(function(t){ t.stop(); });
@@ -2669,6 +2725,7 @@
         recordLabel.textContent = "ההקלטה מוכנה — לא נשמרת, רק להשוואה כרגע.";
       };
       mediaRecorder.start();
+      showRecording();
       setTimeout(function(){ if(mediaRecorder && mediaRecorder.state === "recording") mediaRecorder.stop(); }, 5000);
     }catch(err){
       recordLabel.textContent = "לא ניתנה הרשאה למיקרופון.";
@@ -2928,10 +2985,7 @@
     openOverlay("quizOverlay");
   }
   quizBtn.addEventListener("click", startQuiz);
-  $("quizClose").addEventListener("click", function(){
-    if(dailySessionOpen && quizIndex >= quizQueue.length) finishDailySession();
-    dailySessionOpen = false;
-    refreshDailyBanner(); closeOverlay("quizOverlay"); window.speechSynthesis && window.speechSynthesis.cancel(); });
+  $("quizClose").addEventListener("click", function(){ closeOverlay("quizOverlay"); });
 
   function renderQuiz(){
     if(!quizQueue.length){
@@ -3031,7 +3085,18 @@
     var lines = bulkTextarea.value.split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
     var added = 0, skipped = 0;
     for(var i=0;i<lines.length;i++){
-      var parts = lines[i].split(",").map(function(p){ return p.trim(); });
+      // The sheet documents three formats: "word = meaning", "word, meaning" and
+      // "word, meaning, category". Only the comma was actually implemented.
+      var line = lines[i], parts;
+      var eq = line.indexOf("=");
+      if(eq !== -1){
+        parts = [line.slice(0, eq)].concat(line.slice(eq + 1).split(","));
+      } else if(line.indexOf("\t") !== -1){
+        parts = line.split("\t");
+      } else {
+        parts = line.split(",");
+      }
+      parts = parts.map(function(p){ return p.trim(); });
       var en = sanitizeWord(parts[0]);
       var he = sanitizeMeaning(parts[1] || "");
       var category = sanitizeCategory(parts[2] || "");
@@ -3081,13 +3146,13 @@
     b.addEventListener("click", function(){ setTheme(b.getAttribute("data-theme")); });
   });
   $("menuBackfill").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderBackfill(); openOverlay("backfillOverlay"); });
-  $("backfillClose").addEventListener("click", function(){ backfillCancel = true; closeOverlay("backfillOverlay"); render(); });
+  $("backfillClose").addEventListener("click", function(){ closeOverlay("backfillOverlay"); });
   $("menuCloze").addEventListener("click", function(){ closeOverlay("menuOverlay"); startCloze(); });
   $("menuListen").addEventListener("click", function(){ closeOverlay("menuOverlay"); startListening(); });
   $("menuLeech").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderLeeches(); openOverlay("leechOverlay"); });
-  $("clozeClose").addEventListener("click", function(){ closeOverlay("clozeOverlay"); render(); });
-  $("listenClose").addEventListener("click", function(){ stopRadio(); closeOverlay("listenOverlay"); render(); });
-  $("leechClose").addEventListener("click", function(){ closeOverlay("leechOverlay"); render(); });
+  $("clozeClose").addEventListener("click", function(){ closeOverlay("clozeOverlay"); });
+  $("listenClose").addEventListener("click", function(){ closeOverlay("listenOverlay"); });
+  $("leechClose").addEventListener("click", function(){ closeOverlay("leechOverlay"); });
   $("exportBtnFooter").addEventListener("click", exportWords);
   $("importBtnFooter").addEventListener("click", function(){ $("importInput").click(); });
 
@@ -3195,7 +3260,7 @@
     reader.readAsText(file);
     e.target.value = "";
   });
-  $("importClose").addEventListener("click", function(){ pendingImport = null; closeOverlay("importOverlay"); });
+  $("importClose").addEventListener("click", function(){ closeOverlay("importOverlay"); });
 
   // ---------- Footer collapse: manual toggle + auto-hide while scrolling the list ----------
   var footerEl = $("footerEl"), footerToggleLabel = $("footerToggleLabel"), mainScroll = $("mainScroll");
@@ -3526,7 +3591,7 @@
   function stopRadio(){
     radioOn = false;
     if(radioTimer){ clearTimeout(radioTimer); radioTimer = null; }
-    if(window.speechSynthesis) window.speechSynthesis.cancel();
+    stopSpeech();
   }
 
   // Hands-free: word, pause, meaning, next. Made for walking or driving.
@@ -3798,7 +3863,9 @@
       '<div class="streak-hero">' +
         '<div class="streak-num">' + streak + '</div>' +
         '<div class="streak-cap">' + (streak === 1 ? "יום ברצף" : "ימים ברצף") + '</div>' +
-        '<div class="streak-sub">' + (streak ? "השיא שלך: " + best + " ימים" : "תרגול או הוספת מילה היום יתחילו רצף חדש") + '</div>' +
+        '<div class="streak-sub">' + (streak ? (M.ui === "en"
+            ? ("Your best: " + best + (best === 1 ? " day" : " days"))
+            : ("השיא שלך: " + best + " ימים")) : "תרגול או הוספת מילה היום יתחילו רצף חדש") + '</div>' +
       '</div>' +
       '<div class="stat-grid">' +
         '<div class="stat-card"><span class="stat-num">' + words.length + '</span><span class="stat-cap">מילים ברשימה</span></div>' +
@@ -3897,12 +3964,8 @@
   $("menuPron").addEventListener("click", function(){ closeOverlay("menuOverlay"); startPronunciation(); });
   $("menuStats").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderStats(); openOverlay("statsOverlay"); });
   $("menuWotd").addEventListener("click", function(){ closeOverlay("menuOverlay"); renderWotd(); openOverlay("wotdOverlay"); });
-  $("typeClose").addEventListener("click", function(){ closeOverlay("typeOverlay"); render(); });
-  $("pronClose").addEventListener("click", function(){
-    pronRec = stopRecognition(pronRec);
-    clearMicIndicator();
-    closeOverlay("pronOverlay"); render();
-  });
+  $("typeClose").addEventListener("click", function(){ closeOverlay("typeOverlay"); });
+  $("pronClose").addEventListener("click", function(){ closeOverlay("pronOverlay"); });
   $("statsClose").addEventListener("click", function(){ closeOverlay("statsOverlay"); });
   $("wotdClose").addEventListener("click", function(){ closeOverlay("wotdOverlay"); });
 
@@ -4003,23 +4066,49 @@
     "own same too own here there where why while during before between under above own off again both each few " +
     "own more most other some own than too very can will just don should now been being am").split(" ");
 
+  // The Hebrew equivalent of the stopword list. Prefixes (ו/ה/ב/כ/ל/מ/ש) are stripped
+  // before comparing, so "בבית" is recognised as the same word as "בית".
+  var STOPWORDS_HE = ("של את על עם אני אתה היא הוא אנחנו הם הן זה זו זאת אלה יש אין לא כן גם רק כל כמו אבל או אם כי מה מי איך למה כאשר אחרי לפני בין תחת מעל ליד אצל היה היתה היו יהיה תהיה להיות עוד כבר אז שם פה כאן מאוד יותר פחות הרבה מעט אחד אחת שתי שני יכול צריך רוצה עושה אומר יודע ראה בא הלך נתן לקח שלי שלך שלו שלה שלנו שלהם אלא ואז וגם כדי אשר מכל בכל לכל").split(" ");
+  function stripHebrewPrefix(w){
+    return w.replace(/^(?:ו|ה|ב|כ|ל|מ|ש|וה|כש|לכ|מה|שה)(?=[\u05d0-\u05ea]{3,})/, "");
+  }
+
   var pasteResults = $("pasteResults"), pasteSelection = [];
 
   function extractWords(text){
     var found = {};
-    var matches = String(text || "").toLowerCase().match(/[a-z][a-z'-]{2,}/g) || [];
-    matches.forEach(function(raw){
-      var w = raw.replace(/^['-]+|['-]+$/g, "");
-      if(w.length < 3) return;
-      // "don't" / "wasn't" are just common words in disguise — judge them by their base form.
-      var base = w.replace(/n't$/, "").replace(/'(s|re|ve|ll|d|m)$/, "");
-      if(STOPWORDS.indexOf(w) !== -1 || STOPWORDS.indexOf(base) !== -1) return;
-      found[w] = (found[w] || 0) + 1;
-    });
+    if(M.target === "en"){
+      var matches = String(text || "").toLowerCase().match(/[a-z][a-z'-]{2,}/g) || [];
+      matches.forEach(function(raw){
+        var w = raw.replace(/^['-]+|['-]+$/g, "");
+        if(w.length < 3) return;
+        // "don't" / "wasn't" are just common words in disguise — judge them by their base form.
+        var base = w.replace(/n't$/, "").replace(/'(s|re|ve|ll|d|m)$/, "");
+        if(STOPWORDS.indexOf(w) !== -1 || STOPWORDS.indexOf(base) !== -1) return;
+        found[w] = (found[w] || 0) + 1;
+      });
+    } else {
+      var hebMatches = stripNikud(String(text || "")).match(/[\u05d0-\u05ea]{2,}/g) || [];
+      hebMatches.forEach(function(raw){
+        // Keep the word as written: stripping prefixes blindly turns מתמטיקה into תמטיקה.
+        // Only a leading vav is safe to drop, and the stripped form is used for matching only.
+        var w = raw.replace(/^\u05d5(?=[\u05d0-\u05ea]{3,})/, "");
+        if(w.length < 3) return;
+        if(STOPWORDS_HE.indexOf(w) !== -1 || STOPWORDS_HE.indexOf(stripHebrewPrefix(w)) !== -1) return;
+        found[w] = (found[w] || 0) + 1;
+      });
+    }
     var existing = {};
-    words.forEach(function(w){ existing[w.en.toLowerCase()] = true; });
+    words.forEach(function(w){
+      existing[w.en.toLowerCase()] = true;
+      if(M.target !== "en") existing[stripHebrewPrefix(w.en)] = true;
+    });
     return Object.keys(found)
-      .filter(function(w){ return !existing[w]; })
+      .filter(function(w){
+        if(existing[w]) return false;
+        // "בבית" should not be offered when "בית" is already in the list
+        return !(M.target !== "en" && existing[stripHebrewPrefix(w)]);
+      })
       .map(function(w){ return { word:w, count:found[w] }; })
       .sort(function(a,b){ return b.count - a.count || a.word.localeCompare(b.word); })
       .slice(0, 60);
@@ -4091,11 +4180,7 @@
     renderPasteResults(extractWords($("pasteText").value));
   });
   $("pasteClose").addEventListener("click", function(){ closeOverlay("pasteOverlay"); });
-  $("voiceAddClose").addEventListener("click", function(){
-    voiceRec = stopRecognition(voiceRec);
-    clearMicIndicator();
-    closeOverlay("voiceAddOverlay");
-  });
+  $("voiceAddClose").addEventListener("click", function(){ closeOverlay("voiceAddOverlay"); });
   $("menuVoiceAdd").addEventListener("click", function(){
     closeOverlay("menuOverlay"); renderVoiceAdd(); openOverlay("voiceAddOverlay");
   });
@@ -4572,7 +4657,7 @@
     $("aboutBody").innerHTML =
       '<div class="about-hero">' +
         '<div class="about-mark"></div>' +
-        '<div class="about-name">המילון שלי</div>' +
+        '<div class="about-name">' + (M.ui === "en" ? "My Words" : "המילון שלי") + '</div>' +
         '<div class="about-ver">' + (M.ui === "en" ? "Version " : "גרסה ") + APP_VERSION + ' · ' + APP_DATE + '</div>' +
       '</div>' +
       '<div class="about-rows">' +
@@ -4736,6 +4821,21 @@
     backupBanner.classList.remove("show");
   });
   refreshBackupBanner();
+
+  // Everything that must be undone when a sheet goes away, no matter how it was closed.
+  overlayCleanup.voiceAddOverlay = function(){ voiceRec = stopRecognition(voiceRec); clearMicIndicator(); };
+  overlayCleanup.pronOverlay = function(){ pronRec = stopRecognition(pronRec); clearMicIndicator(); render(); };
+  overlayCleanup.listenOverlay = function(){ stopRadio(); render(); };
+  overlayCleanup.clozeOverlay = function(){ render(); };
+  overlayCleanup.typeOverlay = function(){ render(); };
+  overlayCleanup.leechOverlay = function(){ render(); };
+  overlayCleanup.backfillOverlay = function(){ backfillCancel = true; render(); };
+  overlayCleanup.importOverlay = function(){ pendingImport = null; };
+  overlayCleanup.quizOverlay = function(){
+    if(dailySessionOpen && quizIndex >= quizQueue.length) finishDailySession();
+    dailySessionOpen = false;
+    refreshDailyBanner();
+  };
 
   // ---------- Init ----------
   renderChips();
