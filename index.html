@@ -155,6 +155,10 @@
   @keyframes rise{ from{ transform:translateY(6px); opacity:0; } to{ transform:none; opacity:1; } }
 
   .word-block{ flex:1; min-width:0; cursor:pointer; }
+  /* A single very long word (or transcription) must break rather than push the card open */
+  .word-en, .word-he, .word-phon, .word-ex, .detail-word, .detail-phon, .fc-word, .fc-meaning,
+  .listen-word, .pron-word, .wotd-word, .leech-en, .type-he, .voice-add-word{
+    overflow-wrap:anywhere; word-break:break-word; }
   .word-top-row{ display:flex; align-items:baseline; gap:7px; flex-wrap:wrap; }
   .word-idx{ direction:ltr; font-family:var(--mono); font-size:10.5px; color:var(--ink-faint); }
   .word-en{ direction:ltr; text-align:start; font-size:17.5px; font-weight:700; letter-spacing:-0.015em; }
@@ -2959,6 +2963,10 @@
     SRS_FIELDS.forEach(function(k){ e[k] = snap[k]; });
     saveWords(words);
   }
+  var uiGen = 0;
+  function freshGen(){ return ++uiGen; }
+  function isStale(gen){ return gen !== uiGen; }
+
   function rateAndAdvance(entry, grade){
     quizHistory.push({ index:quizIndex, snap:snapshotEntry(entry), grade:grade });
     srsRate(entry, grade);
@@ -2988,6 +2996,7 @@
   $("quizClose").addEventListener("click", function(){ closeOverlay("quizOverlay"); });
 
   function renderQuiz(){
+    var gen = freshGen();
     if(!quizQueue.length){
       quizBody.innerHTML = '<div class="quiz-empty">אין עדיין מילים לתרגול.<br>הוסיפ/י כמה מילים ותחזר/י לכאן 💪</div>';
       return;
@@ -3031,6 +3040,7 @@
     if(quizRevealed){
       quizBody.querySelectorAll(".grade-btn").forEach(function(b){
         b.addEventListener("click", function(){
+          if(isStale(gen)) return;                 // this card was already answered
           rateAndAdvance(entry, parseInt(b.getAttribute("data-grade"),10));
         });
       });
@@ -3047,6 +3057,7 @@
       var dx = e.changedTouches[0].clientX - startX;
       startX = null;
       if(Math.abs(dx) < 60) return;
+      if(isStale(gen)) return;
       rateAndAdvance(entry, dx > 0 ? 2 : 0);   // swipe right = good, swipe left = again
     }, {passive:true});
   }
@@ -3517,6 +3528,7 @@
   }
 
   function renderCloze(){
+    var gen = freshGen();
     if(clozeIndex >= clozeQueue.length){
       clozeBody.innerHTML =
         '<div class="quiz-empty">סיימת את הסבב<br><strong>' + clozeCorrect + ' מתוך ' + clozeQueue.length + '</strong> נכון</div>' +
@@ -3554,6 +3566,7 @@
     }
 
     checkBtn.addEventListener("click", function(){
+      if(isStale(gen)) return;
       if(clozeChecked){ clozeIndex++; clozeChecked = false; renderCloze(); return; }
       var val = input.value.trim();
       if(!val) return;
@@ -3614,6 +3627,7 @@
   }
 
   function renderListen(){
+    var gen = freshGen();
     if(listenIndex >= listenQueue.length){
       listenBody.innerHTML = '<div class="quiz-empty">סיימת את הסבב 👏</div>' +
         '<button type="button" class="add-btn" id="listenRestart">סבב נוסף</button>';
@@ -3642,6 +3656,7 @@
     if(listenRevealed){
       listenBody.querySelectorAll(".grade-btn").forEach(function(b){
         b.addEventListener("click", function(){
+          if(isStale(gen)) return;
           if(radioOn) stopRadio();
           srsRate(entry, parseInt(b.getAttribute("data-grade"),10));
           listenIndex++; listenRevealed = false; render(); renderListen();
@@ -3690,6 +3705,7 @@
   }
 
   function renderTyping(){
+    var gen = freshGen();
     if(typeIndex >= typeQueue.length){
       typeBody.innerHTML =
         '<div class="quiz-empty">סיימת את הסבב<br><strong>' + typeCorrect + ' מתוך ' + typeQueue.length + '</strong> נכון</div>' +
@@ -3724,6 +3740,7 @@
     }
 
     checkBtn.addEventListener("click", function(){
+      if(isStale(gen)) return;
       if(typeChecked){ typeIndex++; typeChecked = false; renderTyping(); return; }
       var val = input.value.trim();
       if(!val) return;
@@ -3773,6 +3790,7 @@
   }
 
   function renderPronunciation(){
+    var gen = freshGen();
     if(pronIndex >= pronQueue.length){
       pronBody.innerHTML = '<div class="quiz-empty">סיימת את הסבב 👏</div>' +
         '<button type="button" class="add-btn" id="pronRestart">סבב נוסף</button>';
@@ -3797,6 +3815,7 @@
     var micBtn = $("pronMic"), result = $("pronResult");
     $("pronListen").addEventListener("click", function(){ speakWord(entry.en, "female", null); });
     $("pronNext").addEventListener("click", function(){
+      if(isStale(gen)) return;
       pronRec = stopRecognition(pronRec);
       clearMicIndicator();
       pronIndex++; renderPronunciation();
