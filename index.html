@@ -766,10 +766,10 @@
             <input type="text" id="categoryInput" placeholder="אוכל" maxlength="20" inputmode="text">
           </div>
         </div>
-        <div class="hint" id="translateHint"></div>
+        <div class="hint" id="translateHint" aria-live="polite"></div>
         <button type="submit" class="add-btn" id="addBtn" disabled>הוסף/י לרשימה</button>
       </form>
-      <div class="hint" id="hint"></div>
+      <div class="hint" id="hint" role="alert" aria-live="assertive"></div>
       <div class="footer-links">
         <button type="button" id="bulkOpenBtn">הוספה בכמות</button>
         <button type="button" id="exportBtnFooter">ייצוא</button>
@@ -786,7 +786,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>פרטי מילה</h2>
-      <button class="close-x" id="detailClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="detailClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="detail-word" id="detailWord"></div>
     <button type="button" class="edit-en-toggle" id="editWordToggle">עריכת האיות באנגלית</button>
@@ -858,7 +858,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2 id="quizTitle">תרגול</h2>
-      <button class="close-x" id="quizClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="quizClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="quizBody"></div>
   </div>
@@ -870,7 +870,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>הוספה בכמות</h2>
-      <button class="close-x" id="bulkClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="bulkClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <textarea id="bulkTextarea" placeholder="apple, תפוח, אוכל&#10;house, בית&#10;run"></textarea>
     <div class="bulk-example">שורה אחת לכל מילה. אפשר: <b>word</b>, או <b>word, פירוש</b>, או <b>word, פירוש, קטגוריה</b></div>
@@ -885,7 +885,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>השלמת משפט</h2>
-      <button class="close-x" id="clozeClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="clozeClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="clozeBody"></div>
   </div>
@@ -896,7 +896,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>מצב האזנה</h2>
-      <button class="close-x" id="listenClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="listenClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="listenBody"></div>
   </div>
@@ -924,7 +924,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>ייבוא קובץ</h2>
-      <button class="close-x" id="importClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="importClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="importBody"></div>
   </div>
@@ -935,7 +935,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>מדריך למשתמש</h2>
-      <button class="close-x" id="helpClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="helpClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="helpBody"></div>
   </div>
@@ -946,7 +946,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>אודות</h2>
-      <button class="close-x" id="aboutClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="aboutClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="aboutBody"></div>
   </div>
@@ -957,7 +957,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>גיבוי הרשימה</h2>
-      <button class="close-x" id="backupClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="backupClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="backupBody"></div>
   </div>
@@ -968,7 +968,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>שחזור מגיבוי אוטומטי</h2>
-      <button class="close-x" id="restoreClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="restoreClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="restoreBody"></div>
   </div>
@@ -979,7 +979,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>השלמת מידע חסר</h2>
-      <button class="close-x" id="backfillClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="backfillClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="backfillBody"></div>
   </div>
@@ -990,7 +990,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>המילים הקשות שלי</h2>
-      <button class="close-x" id="leechClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="leechClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="leechBody"></div>
   </div>
@@ -1001,7 +1001,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>הוספה בדיבור</h2>
-      <button class="close-x" id="voiceAddClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="voiceAddClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="voiceAddBody"></div>
   </div>
@@ -1012,7 +1012,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>הדבקת טקסט</h2>
-      <button class="close-x" id="pasteClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="pasteClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <textarea id="pasteText" placeholder="הדביקו כאן פסקה, כתבה או מילות שיר באנגלית"></textarea>
     <div class="bulk-example">האפליקציה תסנן מילים נפוצות ומילים שכבר יש לך, ותציע רק את החדשות.</div>
@@ -1026,7 +1026,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>כתיבה: עברית ← אנגלית</h2>
-      <button class="close-x" id="typeClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="typeClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="typeBody"></div>
   </div>
@@ -1037,7 +1037,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>בדיקת הגייה</h2>
-      <button class="close-x" id="pronClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="pronClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="pronBody"></div>
   </div>
@@ -1048,7 +1048,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>ההתקדמות שלי</h2>
-      <button class="close-x" id="statsClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="statsClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="statsBody"></div>
   </div>
@@ -1059,7 +1059,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>מילת היום</h2>
-      <button class="close-x" id="wotdClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="wotdClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div id="wotdBody"></div>
   </div>
@@ -1070,7 +1070,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>תרגול יומי</h2>
-      <button class="close-x" id="dailyClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="dailyClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
 
     <label class="switch-row" for="dailyEnabled">
@@ -1125,7 +1125,7 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title-row">
       <h2>עוד אפשרויות</h2>
-      <button class="close-x" id="menuClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="close-x" aria-label="סגירה" id="menuClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="menu-section-label">תרגול</div>
     <div class="menu-list">
@@ -1249,7 +1249,7 @@
   </div>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="undoBar">
   <span id="undoText"></span>
   <button type="button" id="undoBtn">ביטול</button>
@@ -1427,7 +1427,7 @@
     "הוסיפו מילים כדי לקבל מילת היום.":"Add words to get a word of the day.",
     "רצף ימים":"Day streak", "רצף נוכחי":"Current streak", "מתוכן נלמדו":"of them learned",
     "פותח על ידי":"Created by", "ייצוא אחרון":"Last export", "טרם בוצע":"never",
-    "מקורות המידע":"Data sources",
+    "מקורות המידע":"Data sources", "סגירה":"Close",
     "גיבוי הרשימה":"Backing up your list", "גיבוי שבועי":"Weekly backup",
     "הגיע הזמן לגבות":"Time to back up", "גבה":"Back up",
     "הורדת קובץ הגיבוי":"Download the backup file",
@@ -1710,7 +1710,13 @@
       if(raw2){
         var arr2 = JSON.parse(raw2);
         if(Array.isArray(arr2)){
-          var migrated = arr2.map(function(e){ return normalizeEntry({ en:e.en, he:e.he }); }).filter(Boolean);
+          // A single malformed entry (null, a bare number/string) must not take down the
+          // whole migration: reading `.en` off null throws, and that exception would bubble
+          // out of map() and lose every word via the outer catch, not just the bad one.
+          var migrated = arr2
+            .filter(function(e){ return e && typeof e === "object"; })
+            .map(function(e){ return normalizeEntry({ en:e.en, he:e.he }); })
+            .filter(Boolean);
           saveWords(migrated);
           return migrated;
         }
@@ -3237,18 +3243,32 @@
   function applyImport(withUpdates){
     if(!pendingImport) return;
     var res = pendingImport, updated = 0;
-    res.fresh.forEach(function(entry){ entry.id = uid(); words.unshift(entry); });
+    var freshIds = {};
+    res.fresh.forEach(function(entry){ entry.id = uid(); freshIds[entry.id] = true; words.unshift(entry); });
     if(withUpdates){
       res.updates.forEach(function(u){
         Object.keys(u.changes).forEach(function(k){ u.target[k] = u.changes[k]; });
         updated++;
       });
     }
-    saveWords(words);
+    // saveWords caps what is persisted at MAX_WORDS, but the in-memory `words` array is left
+    // uncapped — so counting against `words` would still see every fresh entry even when most
+    // of them never reached storage. Trim the in-memory list to match what was actually saved,
+    // then count against that.
+    var saved = saveWords(words);
+    if(words.length > MAX_WORDS) words.length = MAX_WORDS;
+    var actuallyAdded = words.filter(function(w){ return freshIds[w.id]; }).length;
     renderChips(); render();
     closeOverlay("importOverlay");
     pendingImport = null;
-    showToast("נוספו " + res.fresh.length + " · עודכנו " + updated);
+    var msg = "נוספו " + actuallyAdded + " · עודכנו " + updated;
+    if(actuallyAdded < res.fresh.length){
+      msg += " (מתוך " + res.fresh.length + " — הגיע לתקרת " + MAX_WORDS + " מילים)";
+    }
+    if(!saved){
+      msg = "השמירה נכשלה — אין מקום פנוי בדפדפן";
+    }
+    showToast(msg);
   }
 
   $("importInput").addEventListener("change", function(e){
@@ -4501,6 +4521,7 @@
       words.forEach(function(w){ have[w.en.toLowerCase()] = true; });
       var restored = 0;
       b.words.forEach(function(raw){
+        if(!raw || typeof raw !== "object") return;   // guard against a corrupted backup entry
         if(have[String(raw.en || "").toLowerCase()]) return;
         var e = normalizeEntry(raw);
         if(e){ words.push(e); restored++; }
@@ -4855,6 +4876,36 @@
     dailySessionOpen = false;
     refreshDailyBanner();
   };
+
+  // ---------- Cross-tab sync ----------
+  // localStorage is shared across every tab, but each tab keeps its own in-memory copy.
+  // Without this, a stale tab's next write (a rating, a new word, a stats update) would
+  // silently overwrite whatever another tab wrote in the meantime — a real, if narrow,
+  // way to lose data if the app is ever open in two places at once. The "storage" event
+  // only fires in tabs that did NOT make the change, which is exactly what's needed here:
+  // refresh this tab's copy before it does its own read-modify-write.
+  window.addEventListener("storage", function(e){
+    if(e.storageArea !== localStorage || !e.key) return;
+    if(e.key === STORAGE_KEY_V3){
+      words = loadWords();
+      renderChips(); render();
+    } else if(e.key === STATS_KEY){
+      try{
+        var raw = JSON.parse(e.newValue || "{}");
+        if(raw && raw.days && typeof raw.days === "object") stats.days = raw.days;
+      }catch(err){}
+    } else if(e.key === DAILY_KEY){
+      try{
+        var d = JSON.parse(e.newValue || "{}");
+        if(typeof d.enabled === "boolean") dailyCfg.enabled = d.enabled;
+        if(typeof d.lastDone === "string") dailyCfg.lastDone = d.lastDone;
+        if(typeof d.lastSkipped === "string") dailyCfg.lastSkipped = d.lastSkipped;
+      }catch(err){}
+      refreshDailyBanner();
+    } else if(e.key === "myWordsApp.lastBackup"){
+      refreshBackupBanner();
+    }
+  });
 
   // ---------- Init ----------
   renderChips();
